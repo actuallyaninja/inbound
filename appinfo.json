@@ -12,7 +12,9 @@
     "sdkVersion": "3",
     "shortName": "inbound",
     "targetPlatforms": [
-        "basalt"
+        "aplite",
+        "basalt",
+        "chalk"
     ],
     "uuid": "2f669683-23ab-4de3-9916-657f6a1c99ad",
     "versionLabel": "1.0",
