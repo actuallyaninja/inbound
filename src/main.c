@@ -20,7 +20,8 @@ static Layer *s_box3_layer;
 static Layer *s_box4_layer;
 static Layer *s_time_middle_layer;
 
-static GBitmap *s_bitmap;
+static GBitmap *s_camo_bitmap;
+static GBitmap *s_camo_bitmap_color;
 static BitmapLayer *s_camo_bg_layer;
 
 int8_t currentHour, currentMinute, currentMonthDay;
@@ -44,8 +45,16 @@ float ROTATION_ANGLE = (TRIG_MAX_ANGLE*0.073);
 
 #ifdef PBL_ROUND
   #define SCREEN_CENTER_HORIZ 72
+  #define MONTHDAY_X_OFFSET_1 25+18
+  #define MONTHDAY_X_OFFSET_2 49+18
+  #define MONTHDAY_Y_OFFSET_1 168-49
+  #define MONTHDAY_Y_OFFSET_2 168-38
 #else
   #define SCREEN_CENTER_HORIZ 90
+  #define MONTHDAY_X_OFFSET_1 25
+  #define MONTHDAY_X_OFFSET_2 49
+  #define MONTHDAY_Y_OFFSET_1 168-49
+  #define MONTHDAY_Y_OFFSET_2 168-38
 #endif
 
 /*
@@ -348,7 +357,7 @@ static void set_day_digit2_pathinfo_from_existing(GPathInfo existing2, int targe
   for (uint32_t i = 0; i < existing2.num_points; i++){ // change this to loop through all 14 points (all points in the DAY_DIGIT gpathinfo) and set the trailing points to all be the same...
     DAY_DIGIT_2.points[i].x = existing2.points[i].x * width_scale2;
     DAY_DIGIT_2.points[i].y = existing2.points[i].y * height_scale2;
-    APP_LOG(APP_LOG_LEVEL_INFO,"DAY_DIGIT_2.points[%d] being set to (%d,%d)...result(%d,%d)",(int)i,(int)existing2.points[i].x,(int)existing2.points[i].y,DAY_DIGIT_2.points[i].x,DAY_DIGIT_2.points[i].y);
+  //  APP_LOG(APP_LOG_LEVEL_INFO,"DAY_DIGIT_2.points[%d] being set to (%d,%d)...result(%d,%d)",(int)i,(int)existing2.points[i].x,(int)existing2.points[i].y,DAY_DIGIT_2.points[i].x,DAY_DIGIT_2.points[i].y);
   }
 }
 
@@ -371,11 +380,13 @@ static void canvas_update_proc(Layer *this_layer, GContext *ctx) {
   graphics_context_set_fill_color(ctx, GColorBlack);
   
   gpath_rotate_to(s_monthday1_path, ROTATION_ANGLE*slant_direction);
-  gpath_move_to(s_monthday1_path,GPoint(23,168-45));
+  //gpath_move_to(s_monthday1_path,GPoint(25,168-49));
+  gpath_move_to(s_monthday1_path,GPoint(MONTHDAY_X_OFFSET_1, MONTHDAY_Y_OFFSET_1));  
   gpath_draw_filled(ctx,s_monthday1_path);
   
   gpath_rotate_to(s_monthday2_path, ROTATION_ANGLE*slant_direction);
-  gpath_move_to(s_monthday2_path,GPoint(47,168-36));
+  //gpath_move_to(s_monthday2_path,GPoint(49,168-38));
+  gpath_move_to(s_monthday2_path,GPoint(MONTHDAY_X_OFFSET_2, MONTHDAY_Y_OFFSET_2));  
   gpath_draw_filled(ctx,s_monthday2_path);
   
 }
@@ -494,10 +505,24 @@ static void main_window_load(Window *window){
   Layer *window_layer = window_get_root_layer(window);
   GRect window_bounds = layer_get_bounds(window_layer);
   
-  // Create Layers 
-  s_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_BG_IMAGE);
+  // Create Layers
+  
+  #ifdef PBL_COLOR
+  s_camo_bitmap_color = gbitmap_create_with_resource(RESOURCE_ID_CAMO_RED);
+  s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_RED);
+  #else
+  s_camo_bitmap_color = gbitmap_create_with_resource(RESOURCE_ID_CAMO_BG_IMAGE);
+  s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_BG_IMAGE);
+  #endif
+  
   s_camo_bg_layer = bitmap_layer_create(window_bounds);
-  bitmap_layer_set_bitmap(s_camo_bg_layer, s_bitmap);
+  
+  #ifdef PBL_COLOR
+  bitmap_layer_set_bitmap(s_camo_bg_layer, s_camo_bitmap_color);
+  #else
+  bitmap_layer_set_bitmap(s_camo_bg_layer, s_camo_bitmap);
+  #endif
+  
   layer_add_child(window_layer, bitmap_layer_get_layer(s_camo_bg_layer));
   
   s_canvas_layer = layer_create(window_bounds);
@@ -531,12 +556,6 @@ static void main_window_load(Window *window){
   layer_set_update_proc(s_time_middle_layer, middle_layer_update_proc);
   layer_add_child(window_layer, s_time_middle_layer);
   
-  //hide the bitmap layer if on aplite
-  /*
-  #ifndef PBL_COLOR
-    layer_set_hidden(bitmap_layer_get_layer(s_camo_bg_layer), true);
-  #endif
-  */
 }
 
 static void main_window_unload(Window *window){
@@ -549,7 +568,8 @@ static void main_window_unload(Window *window){
   layer_destroy(s_canvas_layer);
 
   bitmap_layer_destroy(s_camo_bg_layer);
-  gbitmap_destroy(s_bitmap);
+  gbitmap_destroy(s_camo_bitmap);
+  gbitmap_destroy(s_camo_bitmap_color);
 }
    
 static void init(void){     // set up layers/windows
@@ -559,19 +579,9 @@ static void init(void){     // set up layers/windows
   //number_color = GColorDarkGreen;
   number_color = GColorBlack;
   
-  // blue on white scheme
-  /*background_color = COLOR_FALLBACK(GColorWhite, GColorBlack);
-  number_color = COLOR_FALLBACK(GColorVividCerulean, GColorWhite);
-  */
+  path_color =  COLOR_FALLBACK(GColorDarkGray, GColorBlack);  // drop shadow fill color
   
-  // red on blue scheme
-  /*background_color = COLOR_FALLBACK(GColorVividCerulean, GColorBlack);
-  number_color = COLOR_FALLBACK(GColorRed, GColorWhite);
-  */
-  
-  path_color =  COLOR_FALLBACK(GColorDarkGray, GColorBlack);
-  
-  slant_direction = 1;
+  slant_direction = 1; // 1=>right slant 2=>left slant 
   
   // Create main Window
   s_main_window = window_create();

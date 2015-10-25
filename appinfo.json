@@ -9,6 +9,15 @@
     "resources": {
         "media": [
             {
+                "file": "images/CAMO_RED",
+                "name": "CAMO_RED",
+                "targetPlatforms": [
+                    "basalt",
+                    "chalk"
+                ],
+                "type": "png"
+            },
+            {
                 "file": "images/camo-bg-image",
                 "name": "CAMO_BG_IMAGE",
                 "targetPlatforms": [
