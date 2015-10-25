@@ -7,7 +7,29 @@
     "longName": "inbound",
     "projectType": "native",
     "resources": {
-        "media": []
+        "media": [
+            {
+                "file": "images/camo-bg-image",
+                "name": "CAMO_BG_IMAGE",
+                "targetPlatforms": [
+                    "aplite",
+                    "basalt",
+                    "chalk"
+                ],
+                "type": "png"
+            },
+            {
+                "file": "images/inbound-screenshot",
+                "menuIcon": true,
+                "name": "INBOUND_SCREENSHOT",
+                "targetPlatforms": [
+                    "aplite",
+                    "basalt",
+                    "chalk"
+                ],
+                "type": "png"
+            }
+        ]
     },
     "sdkVersion": "3",
     "shortName": "inbound",

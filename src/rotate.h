@@ -41,3 +41,4 @@ GPoint rotate_gpoint_around_watchface_center(GPoint point, int32_t angle){
     return rotate_gpoint(GPoint(90,90), point, angle);
   #endif
 }
+
