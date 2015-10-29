@@ -9,22 +9,48 @@
     "resources": {
         "media": [
             {
-                "file": "images/CAMO_RED",
-                "name": "CAMO_RED",
+                "file": "images/DIGI_CAMO_BLUE",
+                "name": "DIGI_CAMO_BLUE",
                 "targetPlatforms": [
+                    "aplite",
                     "basalt",
                     "chalk"
                 ],
                 "type": "png"
             },
             {
-                "file": "images/camo-bg-image",
+                "file": "images/CAMO_BG_IMAGE",
                 "name": "CAMO_BG_IMAGE",
                 "targetPlatforms": [
                     "aplite",
                     "basalt",
                     "chalk"
                 ],
+                "type": "png"
+            },
+            {
+                "file": "images/CAMO_BLUE",
+                "name": "CAMO_BLUE",
+                "targetPlatforms": [
+                    "aplite",
+                    "basalt",
+                    "chalk"
+                ],
+                "type": "png"
+            },
+            {
+                "file": "images/PSYCH_CAMO",
+                "name": "PSYCH_CAMO",
+                "targetPlatforms": [
+                    "aplite",
+                    "basalt",
+                    "chalk"
+                ],
+                "type": "png"
+            },
+            {
+                "file": "images/CAMO_RED",
+                "name": "CAMO_RED",
                 "type": "png"
             },
             {
