@@ -59,9 +59,9 @@ int8_t anim_delays[4] = {0,0,0,0};
 #else
   #define SCREEN_CENTER_HORIZ 90
   #define MONTHDAY_X_OFFSET_1 (slant_direction == 1 ? 25 : 63 )
-  #define MONTHDAY_Y_OFFSET_1 (slant_direction == 1 ? (168-49) : (168-38) )
+  #define MONTHDAY_Y_OFFSET_1 (slant_direction == 1 ? (168-62) : (168-38) )
   #define MONTHDAY_X_OFFSET_2 (slant_direction == 1 ? 47 : 86 )  
-  #define MONTHDAY_Y_OFFSET_2 (slant_direction == 1 ? (168-39) : (168-49) )
+  #define MONTHDAY_Y_OFFSET_2 (slant_direction == 1 ? (168-52) : (168-49) )
 #endif
 
 GColor background_color;
@@ -124,7 +124,7 @@ static void pull_digit(int which_digit){ // which_digit is one of {0,1,2,3}
   //APP_LOG(APP_LOG_LEVEL_INFO,"pull_digit(%d) started.", which_digit);
   
   struct GRect * pull_finish;
-  GRect p_finish = GRect(72,-73,50,68);
+  GRect p_finish = GRect(72,-73,55,68);
   
   int x = which_digit; // which_digit should be one of: {0,1,2,3}
   
@@ -133,9 +133,9 @@ static void pull_digit(int which_digit){ // which_digit is one of {0,1,2,3}
     
   // move the shapes off the screen to the top right if slanted right, top left if slanted left
   if(slant_direction == 1){
-    p_finish = GRect(x*30+90, -73, 50, 68);
+    p_finish = GRect(x*30+90, -73, 55, 68);
   }else{
-    p_finish = GRect(x*30-80, -73, 50, 68);
+    p_finish = GRect(x*30-80, -73, 55, 68);
   }
   pull_finish = &p_finish;
   
@@ -325,13 +325,13 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
     
   //start the shapes off the screen to the bottom left if slanted left, bottom right if slanted right
   if(slant_direction == 1){
-    start = GRect(-55, 185, 50, 68);
+    start = GRect(-55, 185, 55, 68);
   }else{
-    start = GRect(185, 185, 50, 68);
+    start = GRect(185, 185, 55, 68);
   }
   
   //start = GRect(x_offset, -60, 50, 68);
-  finish = GRect(x_offset, y_offset, 50, 68);
+  finish = GRect(x_offset, y_offset, 55, 68);
    
   //APP_LOG(APP_LOG_LEVEL_INFO,"Origin point for number layer position %d: (%d, %d)",x,finish.origin.x, finish.origin.y);
   
@@ -683,7 +683,12 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
 
   //#ifdef PBL_COLOR
   if (slant_direction_t->value->int8 == true) {slant_direction = 1;}
-  else {slant_direction = -1;}
+  else {
+    if (slant_direction_t->value->int8 == 116) {slant_direction = 1;} // why does this happen?
+    else {
+            slant_direction = -1;
+         }
+  }
   //#else
   //if (slant_direction_t->value->int8 == 116) {slant_direction = 1;}
   //else {slant_direction = -1;}
@@ -722,27 +727,15 @@ static void main_window_load(Window *window){
   //s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_BLUE);
     
   s_camo_bg_layer = bitmap_layer_create(window_bounds);
-  
   bitmap_layer_set_bitmap(s_camo_bg_layer, s_camo_bitmap);
-
   layer_add_child(window_layer, bitmap_layer_get_layer(s_camo_bg_layer));
   
   s_canvas_layer = layer_create(window_bounds);
   //layer_add_child(bitmap_layer_get_layer(s_camo_bg_layer), s_canvas_layer);
   layer_add_child(window_layer, s_canvas_layer);
   
-  
-  GRect start_number_box;
-  if(slant_direction == 1){
-     start_number_box = GRect(-50, 180, 50, 68);
-  } else {
-    start_number_box = GRect(160, 180, 50, 68);
-  }
-  /*
-  GRect left_number_box = GRect(-50, 180, 50, 68);
-  GRect right_number_box = GRect(160, 180, 50, 68);
-  */
-  
+  GRect start_number_box = GRect(72,-100,55,68);
+ 
   s_box1_layer = layer_create(start_number_box); 
   //layer_add_child(s_canvas_layer, s_box1_layer);
   layer_add_child(window_layer, s_box1_layer);
