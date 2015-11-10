@@ -37,7 +37,8 @@ GPoint number_point_setup(GPoint origin, int default_spacing, int center_spacing
 }
 
 
-/* //current positions resulting from existing code:
+/* 
+current positions resulting from existing code:
 
 number positions:
 
@@ -61,7 +62,7 @@ digit 2: (13,32)
 digit 3: (52,49)
 digit 4: (78,62)
 
-//this configuration doesn't correct for the 1 at the beginning...still looks fine...
+this configuration doesn't correct for the 1 at the beginning...still looks fine...
 w/3 digits (starting w/ "1")
 digit 1: (-13,19) //not used
 digit 2: (13,32)
@@ -90,7 +91,7 @@ digit 2: (13,65)
 digit 3: (52,48)
 digit 4: (78,35)
 
-//this configuration doesn't correct for the 1 at the beginning...still looks fine...
+this configuration doesn't correct for the 1 at the beginning...still looks fine...
 w/3 digits (starting w/ "1")
 digit 1: (-13,78) //not used
 digit 2: (13,65)

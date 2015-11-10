@@ -5,6 +5,9 @@
 #define STANDARD_DIGIT_WIDTH 25
 #define STANDARD_DIGIT_HEIGHT 60
 
+#define STD_BOXY_DIGIT_WIDTH 25
+#define STD_BOXY_DIGIT_HEIGHT 35
+
 //define shapes for digits and dots
  
 //set up a box to be used for time dots
@@ -121,79 +124,95 @@ const GPathInfo *time_digit_info(int8_t digit){
   }
 }
 
-/*
-GPathInfo new_gpathinfo_from_existing(GPathInfo existing){
-  GPoint existing_points[14] = {GPoint(0,0),GPoint(0,0),GPoint(0,0),GPoint(0,0),GPoint(0,0),GPoint(0,0),GPoint(0,0),GPoint(0,0),GPoint(0,0),GPoint(0,0),GPoint(0,0),GPoint(0,0),GPoint(0,0),GPoint(0,0)};
-    
-  //temp.num_points = existing.num_points;
-  
-  for (uint32_t i = 0; i < existing.num_points; i++){
-    existing_points[i].x = existing.points[i].x;
-    existing_points[i].y = existing.points[i].y;
-    APP_LOG(APP_LOG_LEVEL_INFO,"temp.points[%d] being set to (%d,%d)...",(int)i,(int)existing.points[i].x,(int)existing.points[i].y);
-  }
-   
-  GPathInfo temp = {14, existing_points}; // = malloc(sizeof(GPathInfo));
-  
-  return temp;
-}
-*/
+
+// boxier numbers
+
+static const GPathInfo ZERO_BOXY = {
+  10,
+  (GPoint []) {{0,0},{25,0},{25,35},{0,35},{0,0},{9,0},{9,26},{16,26},{16,9},{0,9}}
+};
+
+static const GPathInfo ONE_BOXY = {
+  6,
+  (GPoint []) {{12,0},{25,0},{25,35},{16,35},{16,8},{12,8}}
+};
+
+static const GPathInfo TWO_BOXY = {
+  12,
+  (GPoint[]) {{0,0},{25,0},{25,21},{11,21},{11,27},{25,27},{25,35},{0,35},{0,14},{15,14},{15,8},{0,8}}
+};
+
+static const GPathInfo THREE_BOXY = {
+  12,
+  (GPoint[]) {{0,0},{25,0},{25,35},{0,35},{0,26},{13,26},{13,21},{5,21},{5,14},{13,14},{13,9},{0,9}}
+};
+
+static const GPathInfo FOUR_BOXY = {
+  10,
+  (GPoint[]) {{0,0},{9,0},{9,11},{16,11},{16,0},{25,0},{25,35},{17,35},{16,20},{0,20}}
+};
+
+static const GPathInfo FIVE_BOXY = {
+  12,
+  (GPoint[]) {{0,0},{25,0},{25,8},{12,8},{12,14},{25,14},{25,35},{0,35},{0,27},{14,27},{14,21},{0,21}}
+};
+
+static const GPathInfo SIX_BOXY = {
+  12,
+  (GPoint[]) {{0,0},{25,0},{25,8},{9,8},{9,27},{17,27},{17,21},{0,21},{0,14},{25,14},{25,35},{0,35}}
+};
+
+static const GPathInfo SEVEN_BOXY = {
+  6,
+  (GPoint[]) {{0,0},{25,0},{21,35},{11,35},{15,9},{0,9}}
+};
+
+static const GPathInfo EIGHT_BOXY = {
+  14,
+  (GPoint[]) {{0,15},{0,0},{25,0},{25,35},{0,35},{0,14},{25,14},{25,21},{9,21},{9,28},{16,28},{16,7},{9,7},{9,15}}
+};
+
+static const GPathInfo NINE_BOXY = {
+  10,
+  (GPoint[]) {{0,0},{25,0},{25,35},{16,35},{16,8},{9,8},{9,14},{25,14},{25,21},{0,21}}
+};
 
 static GPathInfo time_digit_info_value(int8_t digit){
-  //GPathInfo temp;
     
   switch (digit){
     case 1:
-      return ONE_PATH;
-      //temp = ONE_PATH;
+      return ONE_BOXY;
       break;
     case 2:
-      return TWO_PATH;
-      //temp = TWO_PATH;
-      //return (GPathInfo){TWO_PATH.num_points, TWO_PATH.points};
-      //return new_gpathinfo_from_existing(TWO_PATH);
+      return TWO_BOXY;
       break;
     case 3:
-      return THREE_PATH;
-      //temp = THREE_PATH;
+      return THREE_BOXY;
       break;
     case 4:
-      return FOUR_PATH;
-      //temp = FOUR_PATH;
+      return FOUR_BOXY;
       break;
     case 5:
-      return FIVE_PATH;
-      //temp = FIVE_PATH;
+      return FIVE_BOXY;
       break;
     case 6:
-      return SIX_PATH;
-      //temp = SIX_PATH;
+      return SIX_BOXY;
       break;
     case 7:
-      return SEVEN_PATH;
-      //temp = SEVEN_PATH;
+      return SEVEN_BOXY;
       break;
     case 8: 
-      return EIGHT_PATH;
-      //temp = EIGHT_PATH;
+      return EIGHT_BOXY;
       break;
     case 9:
-      return NINE_PATH;
-      //temp = NINE_PATH;
+      return NINE_BOXY;
       break;
     case 0:
-      return ZERO_PATH;
-      //temp = ZERO_PATH;
+      return ZERO_BOXY;
       break;
     default:
-      return ZERO_PATH;
-      //temp = ZERO_PATH;
+      return ZERO_BOXY;
       break;
   }
-  
-  //GPathInfo result = (GPathInfo){temp.num_points, temp.points};
-  
-  //return new_gpathinfo_from_existing(TWO_PATH);
+  return ZERO_BOXY;
 }
-
-

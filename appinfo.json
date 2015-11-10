@@ -1,23 +1,15 @@
 {
-    "appKeys": {},
+    "appKeys": {
+        "slantDirection": 0
+    },
     "capabilities": [
-        ""
+        "configurable"
     ],
     "companyName": "dpb",
     "longName": "inbound",
     "projectType": "native",
     "resources": {
         "media": [
-            {
-                "file": "images/DIGI_CAMO_BLUE",
-                "name": "DIGI_CAMO_BLUE",
-                "targetPlatforms": [
-                    "aplite",
-                    "basalt",
-                    "chalk"
-                ],
-                "type": "png"
-            },
             {
                 "file": "images/CAMO_BG_IMAGE",
                 "name": "CAMO_BG_IMAGE",

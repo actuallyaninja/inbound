@@ -4,7 +4,9 @@
 #include <extramath.h>
 #include <positioning.h>
 
-static GPath *s_boxpath;
+#define KEY_SLANT_DIRECTION 0
+
+//static GPath *s_boxpath;
 static GPath *s_number1_path;
 static GPath *s_number2_path;
 static GPath *s_number3_path;
@@ -19,7 +21,7 @@ static Layer *s_box1_layer;
 static Layer *s_box2_layer;
 static Layer *s_box3_layer;
 static Layer *s_box4_layer;
-static Layer *s_time_middle_layer;
+//static Layer *s_time_middle_layer;
 
 static GBitmap *s_camo_bitmap;
 static BitmapLayer *s_camo_bg_layer;
@@ -34,32 +36,38 @@ int slant_direction;  // 1 is slanted down to right, -1 is slanted up to right
 bool digits_changed_during_tick[4] = {0,0,0,0};
 int8_t anim_delays[4] = {0,0,0,0};
 
-float ROTATION_ANGLE = (TRIG_MAX_ANGLE*0.073);
+//int32_t ROTATION_ANGLE = (TRIG_MAX_ANGLE*0.073);
 
-#define BOX_DRAW_X_OFFSET (14 + 14*slant_direction)
+#define ROTATION_ANGLE (TRIG_MAX_ANGLE*0.073)
+
+#define BOX_DRAW_X_OFFSET (14 + 14*slant_direction - (slant_direction == -1 ? 2 : 0))
 #define BOX_DRAW_Y_OFFSET (5 + (-5)*slant_direction)
-#define DROP_SHADOW_X_OFFSET (slant_direction == 1 ? 2 : 4)
-#define DROP_SHADOW_Y_OFFSET (8 - (5*slant_direction))
+#define DROP_SHADOW_X_OFFSET (slant_direction == 1 ? 3 : 5)
+#define DROP_SHADOW_Y_OFFSET (8 - (5*slant_direction) + (slant_direction == 1 ? 2 : 0))
+#define MD_DROP_SHADOW_X_OFFSET (slant_direction == 1 ? 0 : 1)
+#define MD_DROP_SHADOW_Y_OFFSET (slant_direction == 1 ? 4 : 2)
+
 
 #define CENTER_SPACE_WIDTH 13 // the horizontal space between the hour and minute digits
 
 #ifdef PBL_ROUND
   #define SCREEN_CENTER_HORIZ 72
-  #define MONTHDAY_X_OFFSET_1 (slant_direction == 1 ? 25+18 : 83 )
-  #define MONTHDAY_X_OFFSET_2 (slant_direction == 1 ? 49+18 : 107 )
-  #define MONTHDAY_Y_OFFSET_1 (slant_direction == 1 ? 168-49 : 140 )
-  #define MONTHDAY_Y_OFFSET_2 (slant_direction == 1 ? 168-38 : 129 )
+  #define MONTHDAY_X_OFFSET_1 (slant_direction == 1 ? (25+18) : 83 )
+  #define MONTHDAY_Y_OFFSET_1 (slant_direction == 1 ? (168-49) : 140 )
+  #define MONTHDAY_X_OFFSET_2 (slant_direction == 1 ? (49+18) : 107 )  
+  #define MONTHDAY_Y_OFFSET_2 (slant_direction == 1 ? (168-38) : 129 )
 #else
   #define SCREEN_CENTER_HORIZ 90
   #define MONTHDAY_X_OFFSET_1 (slant_direction == 1 ? 25 : 63 )
-  #define MONTHDAY_X_OFFSET_2 (slant_direction == 1 ? 49 : 86 )
-  #define MONTHDAY_Y_OFFSET_1 (slant_direction == 1 ? 168-49 : 168-38 )
-  #define MONTHDAY_Y_OFFSET_2 (slant_direction == 1 ? 168-38 : 168-49 )
+  #define MONTHDAY_Y_OFFSET_1 (slant_direction == 1 ? (168-49) : (168-38) )
+  #define MONTHDAY_X_OFFSET_2 (slant_direction == 1 ? 47 : 86 )  
+  #define MONTHDAY_Y_OFFSET_2 (slant_direction == 1 ? (168-39) : (168-49) )
 #endif
 
 GColor background_color;
 GColor number_color;
 GColor path_color;
+GColor shadow_color;
 
 // variable for animation
 static PropertyAnimation *s_dropin1_animation;
@@ -80,20 +88,32 @@ static void drop_digit(int which_digit);
 //
 
 static void pull1_finished_handler(Animation *animation, bool finished, void *context){
+  #ifdef PBL_SDK_2
+    property_animation_destroy((PropertyAnimation*)animation);
+  #endif
   // start the dropin animation
   drop_digit(0);
 }
 
 static void pull2_finished_handler(Animation *animation, bool finished, void *context){
+  #ifdef PBL_SDK_2
+    property_animation_destroy((PropertyAnimation*)animation);
+  #endif
   // start the dropin animation
   drop_digit(1);
 }
 static void pull3_finished_handler(Animation *animation, bool finished, void *context){
+  #ifdef PBL_SDK_2
+    property_animation_destroy((PropertyAnimation*)animation);
+  #endif
   // start the dropin animation
   drop_digit(2);
 }
 
 static void pull4_finished_handler(Animation *animation, bool finished, void *context){
+  #ifdef PBL_SDK_2
+    property_animation_destroy((PropertyAnimation*)animation);
+  #endif
   // start the dropin animation
   drop_digit(3);
 }
@@ -168,30 +188,47 @@ static void pull_digit(int which_digit){ // which_digit is one of {0,1,2,3}
 }
 
 static void dropin1_started_handler(Animation *animation, void *context) {
+  //APP_LOG(APP_LOG_LEVEL_INFO,"Starting dropin1 animation");
   //update digit 1 number path value
   gpath_destroy(s_number1_path);
   s_number1_path = gpath_create(time_digit_info((int)floor(currentHour / 10)));
+  APP_LOG(APP_LOG_LEVEL_DEBUG,"digit 1 - new gpath created - marking layer dirty next");
   layer_mark_dirty(s_box1_layer);
 }
 
 static void dropin2_started_handler(Animation *animation, void *context) {
+//  APP_LOG(APP_LOG_LEVEL_INFO,"Starting dropin2 animation");
+  
   gpath_destroy(s_number2_path);
   s_number2_path = gpath_create(time_digit_info(currentHour % 10));
+  APP_LOG(APP_LOG_LEVEL_DEBUG,"digit 2 - new gpath created - marking layer dirty next");
   layer_mark_dirty(s_box2_layer);
 }
 
 static void dropin3_started_handler(Animation *animation, void *context) {
+  //APP_LOG(APP_LOG_LEVEL_INFO,"Starting dropin3 animation");
+  
   gpath_destroy(s_number3_path);
   s_number3_path = gpath_create(time_digit_info((int)floor(currentMinute / 10)));
+  APP_LOG(APP_LOG_LEVEL_DEBUG,"digit 3 - new gpath created - marking layer dirty next");
   layer_mark_dirty(s_box3_layer);
 }
 
 static void dropin4_started_handler(Animation *animation, void *context) {
+  //APP_LOG(APP_LOG_LEVEL_INFO,"Starting dropin4 animation");
+  
   gpath_destroy(s_number4_path);
   s_number4_path = gpath_create(time_digit_info(currentMinute % 10));
+  APP_LOG(APP_LOG_LEVEL_DEBUG,"digit 4 - new gpath created - marking layer dirty next");
   layer_mark_dirty(s_box4_layer);
 }
 
+static void dropin_stopped_handler(Animation *animation, bool finished, void *context){
+  #ifdef PBL_SDK_2
+    property_animation_destroy((PropertyAnimation*)animation);
+  #endif
+}
+  
 static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3} 
                                         //according to HH:MM => [0][1]:[2][3] in the current time
   //APP_LOG(APP_LOG_LEVEL_INFO,"drop digit started. Heap bytes used | free: %d | %d", (int)heap_bytes_used,(int)heap_bytes_free());
@@ -235,7 +272,7 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
         test = number_point_setup(GPoint(0,26), NUMBER_SPACING, CENTER_SPACE_WIDTH, x, M_PI / 7); // this configuration worked for both round and rect :)
         x_offset = test.x;
         y_offset = test.y;
-        
+        //APP_LOG(APP_LOG_LEVEL_DEBUG,"Finished number point setup for digit %d", x);
       }
     } else{                                  // for 3 digits
       if(x<2){
@@ -311,7 +348,8 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
       animation_set_delay((Animation*)s_dropin1_animation, initial_delay);    
       animation_set_curve((Animation*)s_dropin1_animation, AnimationCurveEaseOut);
       animation_set_handlers((Animation*)s_dropin1_animation, (AnimationHandlers) {
-        .started = dropin1_started_handler
+        .started = dropin1_started_handler,
+        .stopped = dropin_stopped_handler
       }, NULL);
       animation_schedule((Animation*)s_dropin1_animation);
       break;
@@ -322,7 +360,8 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
         animation_set_delay((Animation*)s_dropin2_animation, initial_delay);
         animation_set_curve((Animation*)s_dropin2_animation, AnimationCurveEaseOut);
         animation_set_handlers((Animation*)s_dropin2_animation, (AnimationHandlers) {
-          .started = dropin2_started_handler
+          .started = dropin2_started_handler,
+          .stopped = dropin_stopped_handler      
         }, NULL);
         animation_schedule((Animation*)s_dropin2_animation);
         break;
@@ -333,7 +372,8 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
         animation_set_delay((Animation*)s_dropin3_animation, initial_delay);
         animation_set_curve((Animation*)s_dropin3_animation, AnimationCurveEaseOut);
         animation_set_handlers((Animation*)s_dropin3_animation, (AnimationHandlers) {
-          .started = dropin3_started_handler
+          .started = dropin3_started_handler,
+          .stopped = dropin_stopped_handler
         }, NULL);
         animation_schedule((Animation*)s_dropin3_animation);
         break;
@@ -344,7 +384,8 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
         animation_set_delay((Animation*)s_dropin4_animation,initial_delay);
         animation_set_curve((Animation*)s_dropin4_animation, AnimationCurveEaseOut);
         animation_set_handlers((Animation*)s_dropin4_animation, (AnimationHandlers) {
-          .started = dropin4_started_handler
+          .started = dropin4_started_handler,
+          .stopped = dropin_stopped_handler
         }, NULL);
         animation_schedule((Animation*)s_dropin4_animation);
         break;
@@ -354,19 +395,6 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
   
 }
   
-/*
-  // set up the start and finish locations for the time divider layer
-  GRect middle_start, middle_finish;
-  middle_start =  GRect(70,0,5,168);
-  middle_finish =  GRect(70,64,5,20);
-
-  s_middle_layer_animation = property_animation_create_layer_frame(s_time_middle_layer, &middle_start, &middle_finish);
-  animation_set_duration((Animation*)s_middle_layer_animation, 200);
-  animation_set_delay((Animation*)s_middle_layer_animation, (4*200)+50);
-  animation_set_curve((Animation*)s_middle_layer_animation, AnimationCurveLinear);
-  animation_schedule((Animation*)s_middle_layer_animation);
-  */
-
 static void clean_up_number_gpaths(){
   gpath_destroy(s_number1_path);
   gpath_destroy(s_number2_path);
@@ -416,7 +444,7 @@ static void update_time() {
   currentMonthDay = tick_time->tm_mday;
   
   //testing:
-  //currentMonthDay = 15;
+  //currentMonthDay = 9;
   
   if(currentMonthDay > 9){
     strftime(month_and_weekday_buffer,sizeof(month_and_weekday_buffer),"%b    %n%A",tick_time);
@@ -431,18 +459,21 @@ static void update_time() {
   //use currentMonthDay to set monthday path values
   set_day_digit1_pathinfo_from_existing(time_digit_info_value((int)(currentMonthDay/10)),22,30);
   set_day_digit2_pathinfo_from_existing(time_digit_info_value((int)(currentMonthDay%10)),22,30);
-
+  
   gpath_destroy(s_monthday1_path);
   gpath_destroy(s_monthday2_path);
   
   s_monthday1_path = gpath_create(ptr_day_digit_1);
   s_monthday2_path = gpath_create(ptr_day_digit_2);
+  
 }
 
 static void set_day_digit1_pathinfo_from_existing(GPathInfo existing1, int target_width, int target_height){
   
-  float width_scale1 = (float)target_width/(float)STANDARD_DIGIT_WIDTH;
-  float height_scale1 = (float)target_height/(float)STANDARD_DIGIT_HEIGHT;
+
+  float width_scale1 = (float)target_width/(float)STD_BOXY_DIGIT_WIDTH;
+  float height_scale1 = (float)target_height/(float)STD_BOXY_DIGIT_HEIGHT;
+  
   int last_point_index = 0;
   
   //for (uint32_t i = 0; i < existing1.num_points; i++){ // change this to loop through all 14 points (all points in the DAY_DIGIT gpathinfo) and set the trailing points to all be the same...
@@ -462,8 +493,11 @@ static void set_day_digit1_pathinfo_from_existing(GPathInfo existing1, int targe
 
 static void set_day_digit2_pathinfo_from_existing(GPathInfo existing2, int target_width, int target_height){
   
-  float width_scale2 = (float)target_width/(float)STANDARD_DIGIT_WIDTH;
-  float height_scale2 = (float)target_height/(float)STANDARD_DIGIT_HEIGHT;
+  //float width_scale2 = (float)target_width/(float)STANDARD_DIGIT_WIDTH;
+  //float height_scale2 = (float)target_height/(float)STANDARD_DIGIT_HEIGHT;
+  float width_scale2 = (float)target_width/(float)STD_BOXY_DIGIT_WIDTH;
+  float height_scale2 = (float)target_height/(float)STD_BOXY_DIGIT_HEIGHT;
+  
   int last_point_index2 = 0;
   
   //for (uint32_t i = 0; i < existing2.num_points; i++){ // change this to loop through all 14 points (all points in the DAY_DIGIT gpathinfo) and set the trailing points to all be the same...
@@ -482,57 +516,72 @@ static void set_day_digit2_pathinfo_from_existing(GPathInfo existing2, int targe
 
 
 static void canvas_update_proc(Layer *this_layer, GContext *ctx) {
+
+  
+  gpath_rotate_to(s_monthday1_path, ROTATION_ANGLE*slant_direction);
+  gpath_rotate_to(s_monthday2_path, ROTATION_ANGLE*slant_direction);
+  // draw drop shadows
+  graphics_context_set_fill_color(ctx, shadow_color);
+  
+  #ifdef PBL_COLOR
+  // draw drop shadow 1
+  gpath_move_to(s_monthday1_path,GPoint(MONTHDAY_X_OFFSET_1 + DROP_SHADOW_X_OFFSET, MONTHDAY_Y_OFFSET_1 + MD_DROP_SHADOW_Y_OFFSET));  
+  gpath_draw_filled(ctx,s_monthday1_path);
+  // draw drop shadow 2
+  gpath_move_to(s_monthday2_path,GPoint(MONTHDAY_X_OFFSET_2 + DROP_SHADOW_X_OFFSET, MONTHDAY_Y_OFFSET_2 + MD_DROP_SHADOW_Y_OFFSET));  
+  gpath_draw_filled(ctx,s_monthday2_path);
+  #endif
   
   // draw day of month digits
     
   //graphics_context_set_fill_color(ctx, number_color);
-  graphics_context_set_fill_color(ctx, GColorBlack);
+  graphics_context_set_fill_color(ctx, number_color);
   
-  gpath_rotate_to(s_monthday1_path, ROTATION_ANGLE*slant_direction);
+  // move foreground number 1 into position
   gpath_move_to(s_monthday1_path,GPoint(MONTHDAY_X_OFFSET_1, MONTHDAY_Y_OFFSET_1));  
-  gpath_draw_filled(ctx,s_monthday1_path);
-  
-  gpath_rotate_to(s_monthday2_path, ROTATION_ANGLE*slant_direction);
+  // move foreground number 2 into position
   gpath_move_to(s_monthday2_path,GPoint(MONTHDAY_X_OFFSET_2, MONTHDAY_Y_OFFSET_2));  
-  gpath_draw_filled(ctx,s_monthday2_path);
   
+  // draw the foreground numbers
+  gpath_draw_filled(ctx,s_monthday1_path);
+  gpath_draw_filled(ctx,s_monthday2_path);
+
 //  APP_LOG(APP_LOG_LEVEL_INFO,"Heap bytes used | free: %d | %d", (int)heap_bytes_used,(int)heap_bytes_free());
+  
+  
+  
+  APP_LOG(APP_LOG_LEVEL_DEBUG,"Finishing canvas_update_proc");
 }
 
+static void push_all_digits(){
+    
+  // animate the changed digits into place
+  if(digits_changed_during_tick[0]){
+    pull_digit(0);
+  }
+  if(digits_changed_during_tick[1]){
+    pull_digit(1);
+  }
+  if(digits_changed_during_tick[2]){
+    pull_digit(2);
+  }
+  if(digits_changed_during_tick[3]){
+    pull_digit(3);
+  }  
+}
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
  
   update_time();  // update variables containing time data
-    
-  // animate the changed digits into their places on the canvas
-  if(digits_changed_during_tick[0]){
-    //drop_digit(0);  
-    pull_digit(0);
-  }
   
-  if(digits_changed_during_tick[1]){
-    //drop_digit(1);
-    pull_digit(1);
-  }
-    
-  if(digits_changed_during_tick[2]){
-    //drop_digit(2);
-    pull_digit(2);
-  }
-  
-  if(digits_changed_during_tick[3]){
-  
-    //testing:
-    pull_digit(3);
-    //
-    //drop_digit(3);
-  }
+  push_all_digits();
   
   // reset all digits to "unchanged" status until next tick event
   digits_changed_during_tick[0] = false;
   digits_changed_during_tick[1] = false;
   digits_changed_during_tick[2] = false;
   digits_changed_during_tick[3] = false;
+  
   
 }
 
@@ -543,22 +592,23 @@ static void box1_update_proc(Layer *this_layer, GContext *ctx) {
     gpath_rotate_to(s_number1_path, ROTATION_ANGLE*slant_direction);
     
     // drop shadows for color pebbles
+    
     #ifdef PBL_COLOR
-      graphics_context_set_fill_color(ctx, path_color);
-      gpath_move_to(s_number1_path, GPoint(BOX_DRAW_X_OFFSET + 2,DROP_SHADOW_Y_OFFSET));
+      graphics_context_set_fill_color(ctx, shadow_color);
+      gpath_move_to(s_number1_path, GPoint(BOX_DRAW_X_OFFSET + DROP_SHADOW_X_OFFSET,DROP_SHADOW_Y_OFFSET));
       gpath_draw_filled(ctx, s_number1_path);
     #endif
     
     graphics_context_set_fill_color(ctx, number_color);
     gpath_move_to(s_number1_path, GPoint(BOX_DRAW_X_OFFSET,BOX_DRAW_Y_OFFSET));
     
-    gpath_draw_filled(ctx, s_number1_path);
+    gpath_draw_filled(ctx, s_number1_path);  
     
   } else{
     // handle the case where there are only 3 numbers in the time:
     // ...do nothing
   }
-    
+  
 }
 
 static void box2_update_proc(Layer *this_layer, GContext *ctx) {
@@ -567,28 +617,33 @@ static void box2_update_proc(Layer *this_layer, GContext *ctx) {
   
   // drop shadows for color pebbles
   #ifdef PBL_COLOR
-    graphics_context_set_fill_color(ctx, path_color);
+    graphics_context_set_fill_color(ctx, shadow_color);
     gpath_move_to(s_number2_path, GPoint(BOX_DRAW_X_OFFSET + DROP_SHADOW_X_OFFSET,DROP_SHADOW_Y_OFFSET));
     gpath_draw_filled(ctx, s_number2_path);
   #endif
   
   graphics_context_set_fill_color(ctx, number_color);
   gpath_move_to(s_number2_path, GPoint(BOX_DRAW_X_OFFSET,BOX_DRAW_Y_OFFSET));
-  gpath_draw_filled(ctx, s_number2_path);
+
+  gpath_draw_filled(ctx, s_number2_path); 
+  //APP_LOG(APP_LOG_LEVEL_DEBUG,"finishing box2_update_proc");
+  
 }
 
 static void box3_update_proc(Layer *this_layer, GContext *ctx) {
+  
   gpath_rotate_to(s_number3_path, ROTATION_ANGLE*slant_direction);
   
   // drop shadows for color pebbles
   #ifdef PBL_COLOR
-    graphics_context_set_fill_color(ctx, path_color);
+    graphics_context_set_fill_color(ctx, shadow_color);
     gpath_move_to(s_number3_path, GPoint(BOX_DRAW_X_OFFSET + DROP_SHADOW_X_OFFSET,DROP_SHADOW_Y_OFFSET));
     gpath_draw_filled(ctx, s_number3_path);
   #endif
-  
+    
   graphics_context_set_fill_color(ctx, number_color);
   gpath_move_to(s_number3_path, GPoint(BOX_DRAW_X_OFFSET,BOX_DRAW_Y_OFFSET));
+  
   gpath_draw_filled(ctx, s_number3_path);
   
 }
@@ -599,23 +654,57 @@ static void box4_update_proc(Layer *this_layer, GContext *ctx) {
   
   // drop shadows for color pebbles
   #ifdef PBL_COLOR
-    graphics_context_set_fill_color(ctx, path_color);
+    graphics_context_set_fill_color(ctx, shadow_color);
     gpath_move_to(s_number4_path, GPoint(BOX_DRAW_X_OFFSET + DROP_SHADOW_X_OFFSET,DROP_SHADOW_Y_OFFSET));
     gpath_draw_filled(ctx, s_number4_path);
   #endif
   
   graphics_context_set_fill_color(ctx, number_color);
   gpath_move_to(s_number4_path, GPoint(BOX_DRAW_X_OFFSET,BOX_DRAW_Y_OFFSET));
+  
   gpath_draw_filled(ctx, s_number4_path);
-
+ 
 }
 
+/*
 static void middle_layer_update_proc(Layer *this_layer, GContext *ctx){
   GRect layer_bounds = layer_get_bounds(this_layer);
   graphics_context_set_fill_color(ctx, GColorWhite);
   graphics_fill_rect(ctx, layer_bounds,0,0);
 }
+*/
 
+static void inbox_received_handler(DictionaryIterator *iter, void *context) {
+  
+  Tuple *slant_direction_t = dict_find(iter, KEY_SLANT_DIRECTION);
+
+  #ifdef PBL_COLOR
+  if (slant_direction_t->value->int8 == true) {slant_direction = 1;}
+  else {slant_direction = -1;}
+  #else
+  if (slant_direction_t->value->int8 == 116) {slant_direction = 1;}
+  else {slant_direction = -1;}
+  #endif
+  
+  APP_LOG(APP_LOG_LEVEL_DEBUG,"inbox message recd. - set slant direction to %d", slant_direction);
+  APP_LOG(APP_LOG_LEVEL_DEBUG,"inbox message recd. - slant_direction_t->value->int8 %d", slant_direction_t->value->int8);
+  
+  persist_write_bool(KEY_SLANT_DIRECTION, (slant_direction == 1 ? true : false));
+
+  digits_changed_during_tick[0] = true;
+  digits_changed_during_tick[1] = true;
+  digits_changed_during_tick[2] = true;
+  digits_changed_during_tick[3] = true;
+
+  push_all_digits();
+  layer_mark_dirty(s_canvas_layer);
+
+  digits_changed_during_tick[0] = false;
+  digits_changed_during_tick[1] = false;
+  digits_changed_during_tick[2] = false;
+  digits_changed_during_tick[3] = false;
+  
+}
 
 static void main_window_load(Window *window){
   
@@ -623,15 +712,12 @@ static void main_window_load(Window *window){
   GRect window_bounds = layer_get_bounds(window_layer);
   
   // Create Layers
-    
+      
   s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_BG_IMAGE);
   //s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_RED);
   //s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_PSYCH_CAMO);
   //s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_BLUE);
-  //s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_DIGI_CAMO_BLUE);
-  
-  
-  
+    
   s_camo_bg_layer = bitmap_layer_create(window_bounds);
   
   bitmap_layer_set_bitmap(s_camo_bg_layer, s_camo_bitmap);
@@ -639,37 +725,40 @@ static void main_window_load(Window *window){
   layer_add_child(window_layer, bitmap_layer_get_layer(s_camo_bg_layer));
   
   s_canvas_layer = layer_create(window_bounds);
-  layer_add_child(bitmap_layer_get_layer(s_camo_bg_layer), s_canvas_layer);
+  //layer_add_child(bitmap_layer_get_layer(s_camo_bg_layer), s_canvas_layer);
+  layer_add_child(window_layer, s_canvas_layer);
   
   GRect left_number_box = GRect(-50, -68, 50, 68);
   GRect right_number_box = GRect(194, 68, 50, 68);
   
   s_box1_layer = layer_create(left_number_box); 
-  layer_add_child(s_canvas_layer, s_box1_layer);
+  //layer_add_child(s_canvas_layer, s_box1_layer);
+  layer_add_child(window_layer, s_box1_layer);
   
   s_box2_layer = layer_create(left_number_box); 
-  layer_add_child(s_canvas_layer, s_box2_layer);
+  //layer_add_child(s_canvas_layer, s_box2_layer);
+  layer_add_child(window_layer, s_box2_layer);
   
   s_box3_layer = layer_create(right_number_box); 
-  layer_add_child(s_canvas_layer, s_box3_layer);
+  //layer_add_child(s_canvas_layer, s_box3_layer);
+  layer_add_child(window_layer, s_box3_layer);
   
   s_box4_layer = layer_create(right_number_box);
-  layer_add_child(s_canvas_layer, s_box4_layer);
+  //layer_add_child(s_canvas_layer, s_box4_layer);
+  layer_add_child(window_layer, s_box4_layer);
   
   window_set_background_color(s_main_window, GColorBlack);
   
-  layer_set_update_proc(s_canvas_layer, canvas_update_proc);//
+  layer_set_update_proc(s_canvas_layer, canvas_update_proc);
   
   layer_set_update_proc(s_box1_layer, box1_update_proc);
   layer_set_update_proc(s_box2_layer, box2_update_proc);
   layer_set_update_proc(s_box3_layer, box3_update_proc);
   layer_set_update_proc(s_box4_layer, box4_update_proc);
   
-  s_time_middle_layer = layer_create(GRect(-5,60,5,60));
-  layer_set_update_proc(s_time_middle_layer, middle_layer_update_proc);
-  layer_add_child(window_layer, s_time_middle_layer);
-  
-  
+  //s_time_middle_layer = layer_create(GRect(-5,60,5,60));
+  //layer_set_update_proc(s_time_middle_layer, middle_layer_update_proc);
+  //layer_add_child(window_layer, s_time_middle_layer);
   
 }
 
@@ -680,7 +769,7 @@ static void main_window_unload(Window *window){
   layer_destroy(s_box3_layer);
   layer_destroy(s_box4_layer);
   
-  layer_destroy(s_time_middle_layer);
+  //layer_destroy(s_time_middle_layer);
   bitmap_layer_destroy(s_camo_bg_layer);
   layer_destroy(s_canvas_layer);
   gbitmap_destroy(s_camo_bitmap);
@@ -689,14 +778,8 @@ static void main_window_unload(Window *window){
    
 static void init(void){     // set up layers/windows
     
-  // green on tan scheme (camo-ish)
-  background_color = COLOR_FALLBACK(GColorLimerick, GColorWhite);
-  //number_color = GColorDarkGreen;
-  number_color = GColorBlack;
-  
-  path_color =  COLOR_FALLBACK(GColorDarkGray, GColorBlack);  // drop shadow fill color
-  
-  slant_direction = -1; // 1=>right slant -1=>left slant 
+  number_color = GColorWhite;
+  shadow_color = GColorBlack;
   
   // Create main Window
   s_main_window = window_create();
@@ -706,9 +789,15 @@ static void init(void){     // set up layers/windows
   });
   window_stack_push(s_main_window, true);
   
-  s_boxpath = gpath_create(&BOX_PATH);  // initialize the path info for the time dots
+  //s_boxpath = gpath_create(&BOX_PATH);  // initialize the path info for the time dots
   
   update_time();
+  
+  //set up initial gpaths
+  s_number1_path = gpath_create(time_digit_info((int)floor(currentHour / 10)));
+  s_number2_path = gpath_create(time_digit_info(currentHour % 10));
+  s_number3_path = gpath_create(time_digit_info((int)floor(currentMinute / 10)));
+  s_number4_path = gpath_create(time_digit_info(currentMinute % 10));
    
   digits_changed_during_tick[0] = true;
   digits_changed_during_tick[1] = true;
@@ -720,21 +809,37 @@ static void init(void){     // set up layers/windows
   GPoint number_starting_points[4] = {{0,0}};
   for (int i=1; i<4; i++){
     number_starting_points[i] = number_point_setup(number_starting_points[0], NUMBER_SPACING, CENTER_SPACING_CONSTANT, i, M_PI / 7);
-    APP_LOG(APP_LOG_LEVEL_INFO,"Point %d: (%d, %d)",i, number_starting_points[i].x,number_starting_points[i].y);
+    //APP_LOG(APP_LOG_LEVEL_INFO,"Point %d: (%d, %d)",i, number_starting_points[i].x,number_starting_points[i].y);
   }
   
+  app_message_register_inbox_received(inbox_received_handler);
+  app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
+  
+  if (persist_exists(KEY_SLANT_DIRECTION)){
+    if (persist_read_bool(KEY_SLANT_DIRECTION) == true) {
+        slant_direction = 1;
+    }
+    else {
+        slant_direction = -1;
+    }
+  }
+  else{
+    slant_direction = -1;
+  }
 }
 
 static void deinit(void){   //destroy layers/windows, etc.
+
   tick_timer_service_unsubscribe();
-  gpath_destroy(s_boxpath);
+  //gpath_destroy(s_boxpath);
   
   gpath_destroy(s_monthday1_path);
   gpath_destroy(s_monthday2_path);
     
-  clean_up_number_gpaths();            // destory all previous gpaths for numbers
+  clean_up_number_gpaths();           // destroy all gpaths for numbers
   animation_unschedule_all();  // Stop any animation in progress
   window_destroy(s_main_window);  // Destroy main Window
+  
   
 }
 
