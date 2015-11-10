@@ -188,39 +188,34 @@ static void pull_digit(int which_digit){ // which_digit is one of {0,1,2,3}
 }
 
 static void dropin1_started_handler(Animation *animation, void *context) {
-  //APP_LOG(APP_LOG_LEVEL_INFO,"Starting dropin1 animation");
-  //update digit 1 number path value
-  gpath_destroy(s_number1_path);
-  s_number1_path = gpath_create(time_digit_info((int)floor(currentHour / 10)));
-  APP_LOG(APP_LOG_LEVEL_DEBUG,"digit 1 - new gpath created - marking layer dirty next");
-  layer_mark_dirty(s_box1_layer);
+  //layer_mark_dirty(s_box1_layer);
 }
 
 static void dropin2_started_handler(Animation *animation, void *context) {
 //  APP_LOG(APP_LOG_LEVEL_INFO,"Starting dropin2 animation");
   
-  gpath_destroy(s_number2_path);
-  s_number2_path = gpath_create(time_digit_info(currentHour % 10));
-  APP_LOG(APP_LOG_LEVEL_DEBUG,"digit 2 - new gpath created - marking layer dirty next");
-  layer_mark_dirty(s_box2_layer);
+  //gpath_destroy(s_number2_path);
+  //s_number2_path = gpath_create(time_digit_info(currentHour % 10));
+  //APP_LOG(APP_LOG_LEVEL_DEBUG,"digit 2 - new gpath created - marking layer dirty next");
+  //layer_mark_dirty(s_box2_layer);
 }
 
 static void dropin3_started_handler(Animation *animation, void *context) {
   //APP_LOG(APP_LOG_LEVEL_INFO,"Starting dropin3 animation");
   
-  gpath_destroy(s_number3_path);
-  s_number3_path = gpath_create(time_digit_info((int)floor(currentMinute / 10)));
-  APP_LOG(APP_LOG_LEVEL_DEBUG,"digit 3 - new gpath created - marking layer dirty next");
-  layer_mark_dirty(s_box3_layer);
+  //gpath_destroy(s_number3_path);
+  //s_number3_path = gpath_create(time_digit_info((int)floor(currentMinute / 10)));
+  //APP_LOG(APP_LOG_LEVEL_DEBUG,"digit 3 - new gpath created - marking layer dirty next");
+  //layer_mark_dirty(s_box3_layer);
 }
 
 static void dropin4_started_handler(Animation *animation, void *context) {
   //APP_LOG(APP_LOG_LEVEL_INFO,"Starting dropin4 animation");
   
-  gpath_destroy(s_number4_path);
-  s_number4_path = gpath_create(time_digit_info(currentMinute % 10));
-  APP_LOG(APP_LOG_LEVEL_DEBUG,"digit 4 - new gpath created - marking layer dirty next");
-  layer_mark_dirty(s_box4_layer);
+  //gpath_destroy(s_number4_path);
+  //s_number4_path = gpath_create(time_digit_info(currentMinute % 10));
+  //APP_LOG(APP_LOG_LEVEL_DEBUG,"digit 4 - new gpath created - marking layer dirty next");
+  //layer_mark_dirty(s_box4_layer);
 }
 
 static void dropin_stopped_handler(Animation *animation, bool finished, void *context){
@@ -343,6 +338,9 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
   // configure and schedule animations
   switch (which_digit){
     case 0:
+      gpath_destroy(s_number1_path);
+      s_number1_path = gpath_create(time_digit_info((int)floor(currentHour / 10)));
+      
       s_dropin1_animation = property_animation_create_layer_frame(s_box1_layer, &start, &finish);
       animation_set_duration((Animation*)s_dropin1_animation, anim_duration);
       animation_set_delay((Animation*)s_dropin1_animation, initial_delay);    
@@ -354,9 +352,11 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
       animation_schedule((Animation*)s_dropin1_animation);
       break;
     case 1:
+        gpath_destroy(s_number2_path);
+        s_number2_path = gpath_create(time_digit_info(currentHour % 10));
+    
         s_dropin2_animation = property_animation_create_layer_frame(s_box2_layer, &start, &finish);
         animation_set_duration((Animation*)s_dropin2_animation, anim_duration);
-        //animation_set_delay((Animation*)s_dropin2_animation, ((digits_changed_during_tick[0])*anim_duration)+(1-digits_changed_during_tick[0])*initial_delay);
         animation_set_delay((Animation*)s_dropin2_animation, initial_delay);
         animation_set_curve((Animation*)s_dropin2_animation, AnimationCurveEaseOut);
         animation_set_handlers((Animation*)s_dropin2_animation, (AnimationHandlers) {
@@ -366,9 +366,11 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
         animation_schedule((Animation*)s_dropin2_animation);
         break;
       case 2:
+        gpath_destroy(s_number3_path);
+        s_number3_path = gpath_create(time_digit_info((int)floor(currentMinute / 10)));
+    
         s_dropin3_animation = property_animation_create_layer_frame(s_box3_layer, &start, &finish);
         animation_set_duration((Animation*)s_dropin3_animation, anim_duration);
-        //animation_set_delay((Animation*)s_dropin3_animation, ((digits_changed_during_tick[0]+digits_changed_during_tick[1])*anim_duration)/*+initial_delay*/);
         animation_set_delay((Animation*)s_dropin3_animation, initial_delay);
         animation_set_curve((Animation*)s_dropin3_animation, AnimationCurveEaseOut);
         animation_set_handlers((Animation*)s_dropin3_animation, (AnimationHandlers) {
@@ -378,9 +380,11 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
         animation_schedule((Animation*)s_dropin3_animation);
         break;
       case 3:
+        gpath_destroy(s_number4_path);
+        s_number4_path = gpath_create(time_digit_info(currentMinute % 10));    
+    
         s_dropin4_animation = property_animation_create_layer_frame(s_box4_layer, &start, &finish);
         animation_set_duration((Animation*)s_dropin4_animation, anim_duration);
-        //animation_set_delay((Animation*)s_dropin4_animation, ((digits_changed_during_tick[0]+digits_changed_during_tick[1]+digits_changed_during_tick[2])*anim_duration)/*+initial_delay*/);
         animation_set_delay((Animation*)s_dropin4_animation,initial_delay);
         animation_set_curve((Animation*)s_dropin4_animation, AnimationCurveEaseOut);
         animation_set_handlers((Animation*)s_dropin4_animation, (AnimationHandlers) {
@@ -418,6 +422,7 @@ static void update_time() {
   }
   currentMinute = tick_time->tm_min;
   
+  APP_LOG(APP_LOG_LEVEL_DEBUG,"Time updated from %d:%d to %d:%d", previousHour, previousMinute, currentHour, currentMinute);
   /*
   //for testing
   currentHour = 1;
@@ -547,9 +552,7 @@ static void canvas_update_proc(Layer *this_layer, GContext *ctx) {
   gpath_draw_filled(ctx,s_monthday2_path);
 
 //  APP_LOG(APP_LOG_LEVEL_INFO,"Heap bytes used | free: %d | %d", (int)heap_bytes_used,(int)heap_bytes_free());
-  
-  
-  
+    
   APP_LOG(APP_LOG_LEVEL_DEBUG,"Finishing canvas_update_proc");
 }
 
@@ -678,13 +681,13 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   
   Tuple *slant_direction_t = dict_find(iter, KEY_SLANT_DIRECTION);
 
-  #ifdef PBL_COLOR
+  //#ifdef PBL_COLOR
   if (slant_direction_t->value->int8 == true) {slant_direction = 1;}
   else {slant_direction = -1;}
-  #else
-  if (slant_direction_t->value->int8 == 116) {slant_direction = 1;}
-  else {slant_direction = -1;}
-  #endif
+  //#else
+  //if (slant_direction_t->value->int8 == 116) {slant_direction = 1;}
+  //else {slant_direction = -1;}
+  //#endif
   
   APP_LOG(APP_LOG_LEVEL_DEBUG,"inbox message recd. - set slant direction to %d", slant_direction);
   APP_LOG(APP_LOG_LEVEL_DEBUG,"inbox message recd. - slant_direction_t->value->int8 %d", slant_direction_t->value->int8);
@@ -728,22 +731,31 @@ static void main_window_load(Window *window){
   //layer_add_child(bitmap_layer_get_layer(s_camo_bg_layer), s_canvas_layer);
   layer_add_child(window_layer, s_canvas_layer);
   
-  GRect left_number_box = GRect(-50, -68, 50, 68);
-  GRect right_number_box = GRect(194, 68, 50, 68);
   
-  s_box1_layer = layer_create(left_number_box); 
+  GRect start_number_box;
+  if(slant_direction == 1){
+     start_number_box = GRect(-50, 180, 50, 68);
+  } else {
+    start_number_box = GRect(160, 180, 50, 68);
+  }
+  /*
+  GRect left_number_box = GRect(-50, 180, 50, 68);
+  GRect right_number_box = GRect(160, 180, 50, 68);
+  */
+  
+  s_box1_layer = layer_create(start_number_box); 
   //layer_add_child(s_canvas_layer, s_box1_layer);
   layer_add_child(window_layer, s_box1_layer);
   
-  s_box2_layer = layer_create(left_number_box); 
+  s_box2_layer = layer_create(start_number_box); 
   //layer_add_child(s_canvas_layer, s_box2_layer);
   layer_add_child(window_layer, s_box2_layer);
   
-  s_box3_layer = layer_create(right_number_box); 
+  s_box3_layer = layer_create(start_number_box); 
   //layer_add_child(s_canvas_layer, s_box3_layer);
   layer_add_child(window_layer, s_box3_layer);
   
-  s_box4_layer = layer_create(right_number_box);
+  s_box4_layer = layer_create(start_number_box);
   //layer_add_child(s_canvas_layer, s_box4_layer);
   layer_add_child(window_layer, s_box4_layer);
   
