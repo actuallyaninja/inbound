@@ -882,7 +882,8 @@ static void init(void){     // set up layers/windows
   }
   
   app_message_register_inbox_received(inbox_received_handler);
-  app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
+  //app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_minimum());
+  app_message_open(256, APP_MESSAGE_OUTBOX_SIZE_MINIMUM);
   
   /*
   if (persist_exists(KEY_SLANT_DIRECTION)){
