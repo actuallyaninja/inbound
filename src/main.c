@@ -4,7 +4,9 @@
 #include <extramath.h>
 #include <positioning.h>
 
-#define KEY_SLANT_DIRECTION 0
+//#define KEY_SLANT_DIRECTION 0
+#define KEY_SLANT_DIR_NUM 0
+#define KEY_BG_IMAGE 1
 
 //static GPath *s_boxpath;
 static GPath *s_number1_path;
@@ -35,6 +37,8 @@ int slant_direction;  // 1 is slanted down to right, -1 is slanted up to right
 
 bool digits_changed_during_tick[4] = {0,0,0,0};
 int8_t anim_delays[4] = {0,0,0,0};
+
+int bg_image_selection;
 
 //int32_t ROTATION_ANGLE = (TRIG_MAX_ANGLE*0.073);
 
@@ -679,9 +683,14 @@ static void middle_layer_update_proc(Layer *this_layer, GContext *ctx){
 
 static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   
-  Tuple *slant_direction_t = dict_find(iter, KEY_SLANT_DIRECTION);
+  //Tuple *slant_direction_t = dict_find(iter, KEY_SLANT_DIRECTION);
+  Tuple *slant_dir_num_t = dict_find(iter, KEY_SLANT_DIR_NUM);
+  Tuple *bg_image_t = dict_find(iter, KEY_BG_IMAGE);
+  
+  int old_slant_direction = slant_direction;
 
-  //#ifdef PBL_COLOR
+  /*
+  //delete the block below when following switch block is validated
   if (slant_direction_t->value->int8 == true) {slant_direction = 1;}
   else {
     if (slant_direction_t->value->int8 == 116) {slant_direction = 1;} // why does this happen?
@@ -689,28 +698,74 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
             slant_direction = -1;
          }
   }
-  //#else
-  //if (slant_direction_t->value->int8 == 116) {slant_direction = 1;}
-  //else {slant_direction = -1;}
-  //#endif
+  */
+  
+  //set the slant_direction based on input from config page
+  int slant_direction_num = atoi(slant_dir_num_t->value->cstring);
+  
+  switch (slant_direction_num){
+    case 1: slant_direction = 1; break;
+    case 2: slant_direction = -1; break;
+    default: slant_direction = -1; break;
+  }
+  
+  persist_write_int(KEY_SLANT_DIR_NUM, slant_direction_num);
+  
+  //set value of value from the dictionary and translate to an integer
+  APP_LOG(APP_LOG_LEVEL_DEBUG,"atoi slant_dir_num_t = %d",atoi(slant_dir_num_t->value->cstring)); 
+  
+  // reset digit layout if the direction is different after config data is returned
+  if (slant_direction != old_slant_direction){
+    digits_changed_during_tick[0] = true;
+    digits_changed_during_tick[1] = true;
+    digits_changed_during_tick[2] = true;
+    digits_changed_during_tick[3] = true;
+  
+    push_all_digits();
+    layer_mark_dirty(s_canvas_layer);
+  
+    digits_changed_during_tick[0] = false;
+    digits_changed_during_tick[1] = false;
+    digits_changed_during_tick[2] = false;
+    digits_changed_during_tick[3] = false;
+  }
+  
+  //char *bg_image_sel_char[2];
+  // set the value of above from the dictionary
+  int new_bg_image_selection = atoi(bg_image_t->value->cstring);
+  APP_LOG(APP_LOG_LEVEL_DEBUG,"new_bg_image_selection: %d", new_bg_image_selection);
+  
+  if(bg_image_selection != new_bg_image_selection){ // don't do anything if the bg selection didn't change.
+    
+    persist_write_int(KEY_BG_IMAGE, new_bg_image_selection);
+    
+    bg_image_selection = new_bg_image_selection;
+    
+    #ifdef PBL_COLOR
+    // reset the gbitmap value and redraw the layer
+    gbitmap_destroy(s_camo_bitmap);
+    switch (bg_image_selection){
+      case 1: s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_BG_IMAGE); break;
+      case 2: s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_RED); break;
+      case 3: s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_BLUE); break;
+      case 4: s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_PSYCH_CAMO); break;
+      default: s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_BG_IMAGE); break;
+    }
+      
+    bitmap_layer_set_bitmap(s_camo_bg_layer, s_camo_bitmap);
+    layer_mark_dirty(bitmap_layer_get_layer(s_camo_bg_layer));
+    #endif
+  }
   
   APP_LOG(APP_LOG_LEVEL_DEBUG,"inbox message recd. - set slant direction to %d", slant_direction);
-  APP_LOG(APP_LOG_LEVEL_DEBUG,"inbox message recd. - slant_direction_t->value->int8 %d", slant_direction_t->value->int8);
+  //APP_LOG(APP_LOG_LEVEL_DEBUG,"inbox message recd. - slant_direction_t->value->int8 %d", slant_direction_t->value->int8);
+  APP_LOG(APP_LOG_LEVEL_DEBUG,"inbox message recd. - set slant dir num tuple value: %s", slant_dir_num_t->value->cstring);
+  APP_LOG(APP_LOG_LEVEL_DEBUG,"inbox message recd. - bg image tuple value: %s", bg_image_t->value->cstring);
   
-  persist_write_bool(KEY_SLANT_DIRECTION, (slant_direction == 1 ? true : false));
+  
+  //persist_write_int(KEY_SLANT_DIR_NUM, (int)slant_dir_num_t->value->int32);
+  persist_write_int(KEY_BG_IMAGE, bg_image_selection);
 
-  digits_changed_during_tick[0] = true;
-  digits_changed_during_tick[1] = true;
-  digits_changed_during_tick[2] = true;
-  digits_changed_during_tick[3] = true;
-
-  push_all_digits();
-  layer_mark_dirty(s_canvas_layer);
-
-  digits_changed_during_tick[0] = false;
-  digits_changed_during_tick[1] = false;
-  digits_changed_during_tick[2] = false;
-  digits_changed_during_tick[3] = false;
   
 }
 
@@ -720,11 +775,20 @@ static void main_window_load(Window *window){
   GRect window_bounds = layer_get_bounds(window_layer);
   
   // Create Layers
-      
-  s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_BG_IMAGE);
+  
+  switch (bg_image_selection){
+    case 1: s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_BG_IMAGE); break;
+    case 2: s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_RED); break;
+    case 3: s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_BLUE); break;
+    case 4: s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_PSYCH_CAMO); break;
+    default: s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_BG_IMAGE); break;
+  }
+  
+  //s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_BG_IMAGE);
   //s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_RED);
-  //s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_PSYCH_CAMO);
   //s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_BLUE);
+  //s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_PSYCH_CAMO);
+  
     
   s_camo_bg_layer = bitmap_layer_create(window_bounds);
   bitmap_layer_set_bitmap(s_camo_bg_layer, s_camo_bitmap);
@@ -820,6 +884,7 @@ static void init(void){     // set up layers/windows
   app_message_register_inbox_received(inbox_received_handler);
   app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
   
+  /*
   if (persist_exists(KEY_SLANT_DIRECTION)){
     if (persist_read_bool(KEY_SLANT_DIRECTION) == true) {
         slant_direction = 1;
@@ -831,6 +896,20 @@ static void init(void){     // set up layers/windows
   else{
     slant_direction = -1;
   }
+  */
+  
+  if (persist_exists(KEY_SLANT_DIR_NUM)){
+    switch(persist_read_int(KEY_SLANT_DIR_NUM)){
+      case 1: slant_direction = 1; break;
+      case 2: slant_direction = -1; break;
+      default: slant_direction = -1; break;
+    }
+  } else{ slant_direction = -1; }
+  
+//read in the value of the persisted storage for the background image:
+  if (persist_exists(KEY_BG_IMAGE)){
+    bg_image_selection = persist_read_int(KEY_BG_IMAGE);
+  } else { bg_image_selection = 1; }
 }
 
 static void deinit(void){   //destroy layers/windows, etc.

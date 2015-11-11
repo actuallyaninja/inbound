@@ -16,7 +16,8 @@ Pebble.addEventListener('webviewclosed', function(e) {
   console.log('Configuration page returned: ' + JSON.stringify(configData));
 
     Pebble.sendAppMessage({
-      slantDirection: configData.slantDirection
+      slantDirectionNumber: configData.slantDirectionNumber,
+      backgroundImageSelection: configData.backgroundImageSelection
     }, function() {
       console.log('Send successful!');
     }, function() {
