@@ -6,6 +6,7 @@ Pebble.addEventListener('showConfiguration', function() {
   var url = 'http://firstwebappcsharp.azurewebsites.net/';
 
   //console.log('Showing configuration page: ' + url);
+  console.log('Showing JS configuration page');
 
   Pebble.openURL(url);
 });

@@ -38,7 +38,7 @@ int slant_direction;  // 1 is slanted down to right, -1 is slanted up to right
 bool digits_changed_during_tick[4] = {0,0,0,0};
 int8_t anim_delays[4] = {0,0,0,0};
 
-int bg_image_selection;
+int32_t bg_image_selection;
 
 //int32_t ROTATION_ANGLE = (TRIG_MAX_ANGLE*0.073);
 
@@ -689,17 +689,6 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   
   int old_slant_direction = slant_direction;
 
-  /*
-  //delete the block below when following switch block is validated
-  if (slant_direction_t->value->int8 == true) {slant_direction = 1;}
-  else {
-    if (slant_direction_t->value->int8 == 116) {slant_direction = 1;} // why does this happen?
-    else {
-            slant_direction = -1;
-         }
-  }
-  */
-  
   //set the slant_direction based on input from config page
   int slant_direction_num = atoi(slant_dir_num_t->value->cstring);
   
@@ -709,10 +698,13 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     default: slant_direction = -1; break;
   }
   
-  persist_write_int(KEY_SLANT_DIR_NUM, slant_direction_num);
+  const int32_t const_slant_direction_num = (int32_t)slant_direction_num;
+  //persist_write_int(KEY_SLANT_DIR_NUM, slant_direction_num);
+  persist_write_int(KEY_SLANT_DIR_NUM, const_slant_direction_num);
   
   //set value of value from the dictionary and translate to an integer
-  APP_LOG(APP_LOG_LEVEL_DEBUG,"atoi slant_dir_num_t = %d",atoi(slant_dir_num_t->value->cstring)); 
+  APP_LOG(APP_LOG_LEVEL_DEBUG,"from config page: slant_dir_num_t = %d",atoi(slant_dir_num_t->value->cstring));
+  APP_LOG(APP_LOG_LEVEL_DEBUG,"slant_direction_num value in persistent storage: %d", (int)persist_read_int(KEY_SLANT_DIR_NUM));
   
   // reset digit layout if the direction is different after config data is returned
   if (slant_direction != old_slant_direction){
@@ -730,14 +722,14 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     digits_changed_during_tick[3] = false;
   }
   
-  //char *bg_image_sel_char[2];
-  // set the value of above from the dictionary
-  int new_bg_image_selection = atoi(bg_image_t->value->cstring);
-  APP_LOG(APP_LOG_LEVEL_DEBUG,"new_bg_image_selection: %d", new_bg_image_selection);
+  // set the value of big image selection from the dictionary
+  const int32_t new_bg_image_selection = (int32_t)atoi(bg_image_t->value->cstring);
+  persist_write_int(KEY_BG_IMAGE, new_bg_image_selection);
+  
+  APP_LOG(APP_LOG_LEVEL_DEBUG,"new_bg_image_selection: %d", (int)new_bg_image_selection);
+  APP_LOG(APP_LOG_LEVEL_DEBUG,"bg_image_selection value stored in persistent storage: %d", (int)persist_read_int(KEY_BG_IMAGE));
   
   if(bg_image_selection != new_bg_image_selection){ // don't do anything if the bg selection didn't change.
-    
-    persist_write_int(KEY_BG_IMAGE, new_bg_image_selection);
     
     bg_image_selection = new_bg_image_selection;
     
@@ -775,6 +767,8 @@ static void main_window_load(Window *window){
   GRect window_bounds = layer_get_bounds(window_layer);
   
   // Create Layers
+  bg_image_selection = persist_read_int(KEY_BG_IMAGE);
+  APP_LOG(APP_LOG_LEVEL_DEBUG,"before setting bg image in main_window_load, bg_image_selection = %d", (int)bg_image_selection);
   
   switch (bg_image_selection){
     case 1: s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_BG_IMAGE); break;
@@ -784,11 +778,7 @@ static void main_window_load(Window *window){
     default: s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_BG_IMAGE); break;
   }
   
-  //s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_BG_IMAGE);
-  //s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_RED);
-  //s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_BLUE);
-  //s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_PSYCH_CAMO);
-  
+  APP_LOG(APP_LOG_LEVEL_DEBUG,"Init() -- bg_image_selection value: %d", (int)bg_image_selection);
     
   s_camo_bg_layer = bitmap_layer_create(window_bounds);
   bitmap_layer_set_bitmap(s_camo_bg_layer, s_camo_bitmap);
@@ -883,34 +873,29 @@ static void init(void){     // set up layers/windows
   
   app_message_register_inbox_received(inbox_received_handler);
   //app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_minimum());
-  app_message_open(256, APP_MESSAGE_OUTBOX_SIZE_MINIMUM);
+  app_message_open(256, 256);
   
-  /*
-  if (persist_exists(KEY_SLANT_DIRECTION)){
-    if (persist_read_bool(KEY_SLANT_DIRECTION) == true) {
-        slant_direction = 1;
-    }
-    else {
-        slant_direction = -1;
-    }
-  }
-  else{
-    slant_direction = -1;
-  }
-  */
-  
-  if (persist_exists(KEY_SLANT_DIR_NUM)){
+  //if (persist_exists(KEY_SLANT_DIR_NUM)){
     switch(persist_read_int(KEY_SLANT_DIR_NUM)){
       case 1: slant_direction = 1; break;
       case 2: slant_direction = -1; break;
       default: slant_direction = -1; break;
     }
-  } else{ slant_direction = -1; }
+  //} else{ slant_direction = -1; }
   
 //read in the value of the persisted storage for the background image:
-  if (persist_exists(KEY_BG_IMAGE)){
-    bg_image_selection = persist_read_int(KEY_BG_IMAGE);
-  } else { bg_image_selection = 1; }
+  //if (persist_exists(KEY_BG_IMAGE)){
+  
+  bg_image_selection = persist_read_int(KEY_BG_IMAGE);
+  
+  if(bg_image_selection < 1 || bg_image_selection > 4){
+    bg_image_selection = 1;
+    APP_LOG(APP_LOG_LEVEL_DEBUG,"bg_image_selection could not be read from persistent storage or was not in range.");
+  }
+  
+  //} else { bg_image_selection = 1; }
+  
+  APP_LOG(APP_LOG_LEVEL_DEBUG,"after init(), bg_image_selection value set to: %d", (int)bg_image_selection);
 }
 
 static void deinit(void){   //destroy layers/windows, etc.
