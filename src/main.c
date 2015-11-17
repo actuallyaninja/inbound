@@ -453,7 +453,7 @@ static void update_time() {
   currentMonthDay = tick_time->tm_mday;
   
   //testing:
-  //currentMonthDay = 9;
+  currentMonthDay = 13;
   
   if(currentMonthDay > 9){
     strftime(month_and_weekday_buffer,sizeof(month_and_weekday_buffer),"%b    %n%A",tick_time);
@@ -557,7 +557,8 @@ static void canvas_update_proc(Layer *this_layer, GContext *ctx) {
 
 //  APP_LOG(APP_LOG_LEVEL_INFO,"Heap bytes used | free: %d | %d", (int)heap_bytes_used,(int)heap_bytes_free());
     
-  APP_LOG(APP_LOG_LEVEL_DEBUG,"Finishing canvas_update_proc");
+  //APP_LOG(APP_LOG_LEVEL_DEBUG,"Finishing canvas_update_proc");
+  
 }
 
 static void push_all_digits(){
@@ -683,7 +684,6 @@ static void middle_layer_update_proc(Layer *this_layer, GContext *ctx){
 
 static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   
-  //Tuple *slant_direction_t = dict_find(iter, KEY_SLANT_DIRECTION);
   Tuple *slant_dir_num_t = dict_find(iter, KEY_SLANT_DIR_NUM);
   Tuple *bg_image_t = dict_find(iter, KEY_BG_IMAGE);
   
@@ -703,8 +703,8 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   persist_write_int(KEY_SLANT_DIR_NUM, const_slant_direction_num);
   
   //set value of value from the dictionary and translate to an integer
-  APP_LOG(APP_LOG_LEVEL_DEBUG,"from config page: slant_dir_num_t = %d",atoi(slant_dir_num_t->value->cstring));
-  APP_LOG(APP_LOG_LEVEL_DEBUG,"slant_direction_num value in persistent storage: %d", (int)persist_read_int(KEY_SLANT_DIR_NUM));
+  //APP_LOG(APP_LOG_LEVEL_DEBUG,"from config page: slant_dir_num_t = %d",atoi(slant_dir_num_t->value->cstring));
+  //APP_LOG(APP_LOG_LEVEL_DEBUG,"slant_direction_num value in persistent storage: %d", (int)persist_read_int(KEY_SLANT_DIR_NUM));
   
   // reset digit layout if the direction is different after config data is returned
   if (slant_direction != old_slant_direction){
@@ -726,14 +726,13 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   const int32_t new_bg_image_selection = (int32_t)atoi(bg_image_t->value->cstring);
   persist_write_int(KEY_BG_IMAGE, new_bg_image_selection);
   
-  APP_LOG(APP_LOG_LEVEL_DEBUG,"new_bg_image_selection: %d", (int)new_bg_image_selection);
-  APP_LOG(APP_LOG_LEVEL_DEBUG,"bg_image_selection value stored in persistent storage: %d", (int)persist_read_int(KEY_BG_IMAGE));
+  //APP_LOG(APP_LOG_LEVEL_DEBUG,"new_bg_image_selection: %d", (int)new_bg_image_selection);
+  //APP_LOG(APP_LOG_LEVEL_DEBUG,"bg_image_selection value stored in persistent storage: %d", (int)persist_read_int(KEY_BG_IMAGE));
   
   if(bg_image_selection != new_bg_image_selection){ // don't do anything if the bg selection didn't change.
     
     bg_image_selection = new_bg_image_selection;
-    
-    #ifdef PBL_COLOR
+        
     // reset the gbitmap value and redraw the layer
     gbitmap_destroy(s_camo_bitmap);
     switch (bg_image_selection){
@@ -746,13 +745,13 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
       
     bitmap_layer_set_bitmap(s_camo_bg_layer, s_camo_bitmap);
     layer_mark_dirty(bitmap_layer_get_layer(s_camo_bg_layer));
-    #endif
+    
   }
   
-  APP_LOG(APP_LOG_LEVEL_DEBUG,"inbox message recd. - set slant direction to %d", slant_direction);
+  //APP_LOG(APP_LOG_LEVEL_DEBUG,"inbox message recd. - set slant direction to %d", slant_direction);
   //APP_LOG(APP_LOG_LEVEL_DEBUG,"inbox message recd. - slant_direction_t->value->int8 %d", slant_direction_t->value->int8);
-  APP_LOG(APP_LOG_LEVEL_DEBUG,"inbox message recd. - set slant dir num tuple value: %s", slant_dir_num_t->value->cstring);
-  APP_LOG(APP_LOG_LEVEL_DEBUG,"inbox message recd. - bg image tuple value: %s", bg_image_t->value->cstring);
+  //APP_LOG(APP_LOG_LEVEL_DEBUG,"inbox message recd. - set slant dir num tuple value: %s", slant_dir_num_t->value->cstring);
+  //APP_LOG(APP_LOG_LEVEL_DEBUG,"inbox message recd. - bg image tuple value: %s", bg_image_t->value->cstring);
   
   
   //persist_write_int(KEY_SLANT_DIR_NUM, (int)slant_dir_num_t->value->int32);
@@ -766,14 +765,24 @@ static void main_window_load(Window *window){
   // read in persistent config values and set variables
   
   // set slant direction from persistent storage
-  switch(persist_read_int(KEY_SLANT_DIR_NUM)){
-    case 1: slant_direction = 1; break;
-    case 2: slant_direction = -1; break;
-    default: slant_direction = -1; break;
+  if(persist_exists(KEY_SLANT_DIR_NUM)){
+    switch(persist_read_int(KEY_SLANT_DIR_NUM)){
+      case 1: slant_direction = 1; break;
+      case 2: slant_direction = -1; break;
+      default: slant_direction = -1; break;
+    }
+  }
+  else {
+    slant_direction = -1;
   }
   
   //set backgroud image choice from persistent storage
-  bg_image_selection = persist_read_int(KEY_BG_IMAGE);
+  if(persist_exists(KEY_BG_IMAGE)){
+    bg_image_selection = persist_read_int(KEY_BG_IMAGE);
+  } else {
+    bg_image_selection = 1;
+  }  // default to 1 if no persistent storage exists yet
+  
   switch (bg_image_selection){
     case 1: s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_BG_IMAGE); break;
     case 2: s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_RED); break;

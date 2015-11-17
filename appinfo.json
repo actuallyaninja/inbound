@@ -44,6 +44,11 @@
             {
                 "file": "images/CAMO_RED",
                 "name": "CAMO_RED",
+                "targetPlatforms": [
+                    "aplite",
+                    "basalt",
+                    "chalk"
+                ],
                 "type": "png"
             },
             {

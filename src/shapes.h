@@ -144,7 +144,7 @@ static const GPathInfo TWO_BOXY = {
 
 static const GPathInfo THREE_BOXY = {
   12,
-  (GPoint[]) {{0,0},{25,0},{25,35},{0,35},{0,26},{13,26},{13,21},{5,21},{5,14},{13,14},{13,9},{0,9}}
+  (GPoint[]) {{0,0},{25,0},{25,35},{0,35},{0,26},{16,26},{16,21},{5,21},{5,14},{16,14},{16,9},{0,9}}
 };
 
 static const GPathInfo FOUR_BOXY = {
