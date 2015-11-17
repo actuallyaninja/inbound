@@ -763,13 +763,17 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
 
 static void main_window_load(Window *window){
   
-  Layer *window_layer = window_get_root_layer(window);
-  GRect window_bounds = layer_get_bounds(window_layer);
+  // read in persistent config values and set variables
   
-  // Create Layers
+  // set slant direction from persistent storage
+  switch(persist_read_int(KEY_SLANT_DIR_NUM)){
+    case 1: slant_direction = 1; break;
+    case 2: slant_direction = -1; break;
+    default: slant_direction = -1; break;
+  }
+  
+  //set backgroud image choice from persistent storage
   bg_image_selection = persist_read_int(KEY_BG_IMAGE);
-  APP_LOG(APP_LOG_LEVEL_DEBUG,"before setting bg image in main_window_load, bg_image_selection = %d", (int)bg_image_selection);
-  
   switch (bg_image_selection){
     case 1: s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_BG_IMAGE); break;
     case 2: s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_RED); break;
@@ -778,8 +782,11 @@ static void main_window_load(Window *window){
     default: s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_BG_IMAGE); break;
   }
   
-  APP_LOG(APP_LOG_LEVEL_DEBUG,"Init() -- bg_image_selection value: %d", (int)bg_image_selection);
-    
+  // Create Layers
+  
+  Layer *window_layer = window_get_root_layer(window);
+  GRect window_bounds = layer_get_bounds(window_layer);
+  
   s_camo_bg_layer = bitmap_layer_create(window_bounds);
   bitmap_layer_set_bitmap(s_camo_bg_layer, s_camo_bitmap);
   layer_add_child(window_layer, bitmap_layer_get_layer(s_camo_bg_layer));
@@ -875,27 +882,6 @@ static void init(void){     // set up layers/windows
   //app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_minimum());
   app_message_open(256, 256);
   
-  //if (persist_exists(KEY_SLANT_DIR_NUM)){
-    switch(persist_read_int(KEY_SLANT_DIR_NUM)){
-      case 1: slant_direction = 1; break;
-      case 2: slant_direction = -1; break;
-      default: slant_direction = -1; break;
-    }
-  //} else{ slant_direction = -1; }
-  
-//read in the value of the persisted storage for the background image:
-  //if (persist_exists(KEY_BG_IMAGE)){
-  
-  bg_image_selection = persist_read_int(KEY_BG_IMAGE);
-  
-  if(bg_image_selection < 1 || bg_image_selection > 4){
-    bg_image_selection = 1;
-    APP_LOG(APP_LOG_LEVEL_DEBUG,"bg_image_selection could not be read from persistent storage or was not in range.");
-  }
-  
-  //} else { bg_image_selection = 1; }
-  
-  APP_LOG(APP_LOG_LEVEL_DEBUG,"after init(), bg_image_selection value set to: %d", (int)bg_image_selection);
 }
 
 static void deinit(void){   //destroy layers/windows, etc.
@@ -909,7 +895,6 @@ static void deinit(void){   //destroy layers/windows, etc.
   clean_up_number_gpaths();           // destroy all gpaths for numbers
   animation_unschedule_all();  // Stop any animation in progress
   window_destroy(s_main_window);  // Destroy main Window
-  
   
 }
 
