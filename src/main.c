@@ -532,17 +532,18 @@ static void canvas_update_proc(Layer *this_layer, GContext *ctx) {
   // draw drop shadows
   graphics_context_set_fill_color(ctx, shadow_color);
   
-  #ifdef PBL_COLOR
+  //#ifdef PBL_COLOR
   // draw drop shadow 1
   gpath_move_to(s_monthday1_path,GPoint(MONTHDAY_X_OFFSET_1 + DROP_SHADOW_X_OFFSET, MONTHDAY_Y_OFFSET_1 + MD_DROP_SHADOW_Y_OFFSET));  
   gpath_draw_filled(ctx,s_monthday1_path);
   // draw drop shadow 2
   gpath_move_to(s_monthday2_path,GPoint(MONTHDAY_X_OFFSET_2 + DROP_SHADOW_X_OFFSET, MONTHDAY_Y_OFFSET_2 + MD_DROP_SHADOW_Y_OFFSET));  
   gpath_draw_filled(ctx,s_monthday2_path);
-  #endif
+  //#endif
   
   // draw day of month digits
     
+  
   //graphics_context_set_fill_color(ctx, number_color);
   graphics_context_set_fill_color(ctx, number_color);
   
@@ -601,11 +602,11 @@ static void box1_update_proc(Layer *this_layer, GContext *ctx) {
     
     // drop shadows for color pebbles
     
-    #ifdef PBL_COLOR
+    //#ifdef PBL_COLOR
       graphics_context_set_fill_color(ctx, shadow_color);
       gpath_move_to(s_number1_path, GPoint(BOX_DRAW_X_OFFSET + DROP_SHADOW_X_OFFSET,DROP_SHADOW_Y_OFFSET));
       gpath_draw_filled(ctx, s_number1_path);
-    #endif
+    //#endif
     
     graphics_context_set_fill_color(ctx, number_color);
     gpath_move_to(s_number1_path, GPoint(BOX_DRAW_X_OFFSET,BOX_DRAW_Y_OFFSET));
@@ -624,11 +625,11 @@ static void box2_update_proc(Layer *this_layer, GContext *ctx) {
   gpath_rotate_to(s_number2_path, ROTATION_ANGLE*slant_direction);
   
   // drop shadows for color pebbles
-  #ifdef PBL_COLOR
+  //#ifdef PBL_COLOR
     graphics_context_set_fill_color(ctx, shadow_color);
     gpath_move_to(s_number2_path, GPoint(BOX_DRAW_X_OFFSET + DROP_SHADOW_X_OFFSET,DROP_SHADOW_Y_OFFSET));
     gpath_draw_filled(ctx, s_number2_path);
-  #endif
+  //#endif
   
   graphics_context_set_fill_color(ctx, number_color);
   gpath_move_to(s_number2_path, GPoint(BOX_DRAW_X_OFFSET,BOX_DRAW_Y_OFFSET));
@@ -643,11 +644,11 @@ static void box3_update_proc(Layer *this_layer, GContext *ctx) {
   gpath_rotate_to(s_number3_path, ROTATION_ANGLE*slant_direction);
   
   // drop shadows for color pebbles
-  #ifdef PBL_COLOR
+  //#ifdef PBL_COLOR
     graphics_context_set_fill_color(ctx, shadow_color);
     gpath_move_to(s_number3_path, GPoint(BOX_DRAW_X_OFFSET + DROP_SHADOW_X_OFFSET,DROP_SHADOW_Y_OFFSET));
     gpath_draw_filled(ctx, s_number3_path);
-  #endif
+  //#endif
     
   graphics_context_set_fill_color(ctx, number_color);
   gpath_move_to(s_number3_path, GPoint(BOX_DRAW_X_OFFSET,BOX_DRAW_Y_OFFSET));
@@ -661,11 +662,11 @@ static void box4_update_proc(Layer *this_layer, GContext *ctx) {
   gpath_rotate_to(s_number4_path, ROTATION_ANGLE*slant_direction);
   
   // drop shadows for color pebbles
-  #ifdef PBL_COLOR
+  //#ifdef PBL_COLOR
     graphics_context_set_fill_color(ctx, shadow_color);
     gpath_move_to(s_number4_path, GPoint(BOX_DRAW_X_OFFSET + DROP_SHADOW_X_OFFSET,DROP_SHADOW_Y_OFFSET));
     gpath_draw_filled(ctx, s_number4_path);
-  #endif
+  //#endif
   
   graphics_context_set_fill_color(ctx, number_color);
   gpath_move_to(s_number4_path, GPoint(BOX_DRAW_X_OFFSET,BOX_DRAW_Y_OFFSET));
