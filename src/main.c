@@ -426,7 +426,7 @@ static void update_time() {
   }
   currentMinute = tick_time->tm_min;
   
-  APP_LOG(APP_LOG_LEVEL_DEBUG,"Time updated from %d:%d to %d:%d", previousHour, previousMinute, currentHour, currentMinute);
+  //APP_LOG(APP_LOG_LEVEL_DEBUG,"Time updated from %d:%d to %d:%d", previousHour, previousMinute, currentHour, currentMinute);
   /*
   //for testing
   currentHour = 1;
@@ -453,7 +453,7 @@ static void update_time() {
   currentMonthDay = tick_time->tm_mday;
   
   //testing:
-  currentMonthDay = 13;
+  //currentMonthDay = 13;
   
   if(currentMonthDay > 9){
     strftime(month_and_weekday_buffer,sizeof(month_and_weekday_buffer),"%b    %n%A",tick_time);
@@ -792,6 +792,8 @@ static void main_window_load(Window *window){
     default: s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_BG_IMAGE); break;
   }
   
+  
+  
   // Create Layers
   
   Layer *window_layer = window_get_root_layer(window);
@@ -800,6 +802,13 @@ static void main_window_load(Window *window){
   s_camo_bg_layer = bitmap_layer_create(window_bounds);
   bitmap_layer_set_bitmap(s_camo_bg_layer, s_camo_bitmap);
   layer_add_child(window_layer, bitmap_layer_get_layer(s_camo_bg_layer));
+  
+  //GCompOpSet //bitmap_layer_set_compositing_mode
+  #ifdef PBL_COLOR
+  GColor gc_bitmap_bg_color = GColorRed;
+  bitmap_layer_set_compositing_mode(s_camo_bg_layer, GCompOpSet);
+  bitmap_layer_set_background_color(s_camo_bg_layer, gc_bitmap_bg_color);
+  #endif
   
   s_canvas_layer = layer_create(window_bounds);
   //layer_add_child(bitmap_layer_get_layer(s_camo_bg_layer), s_canvas_layer);
@@ -822,6 +831,7 @@ static void main_window_load(Window *window){
   s_box4_layer = layer_create(start_number_box);
   //layer_add_child(s_canvas_layer, s_box4_layer);
   layer_add_child(window_layer, s_box4_layer);
+  
   
   window_set_background_color(s_main_window, GColorBlack);
   
