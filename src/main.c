@@ -7,6 +7,7 @@
 //#define KEY_SLANT_DIRECTION 0
 #define KEY_SLANT_DIR_NUM 0
 #define KEY_BG_IMAGE 1
+#define KEY_BG_COLOR 2
 
 //static GPath *s_boxpath;
 static GPath *s_number1_path;
@@ -40,8 +41,6 @@ int8_t anim_delays[4] = {0,0,0,0};
 
 int32_t bg_image_selection;
 
-//int32_t ROTATION_ANGLE = (TRIG_MAX_ANGLE*0.073);
-
 #define ROTATION_ANGLE (TRIG_MAX_ANGLE*0.073)
 
 #define BOX_DRAW_X_OFFSET (14 + 14*slant_direction - (slant_direction == -1 ? 2 : 0))
@@ -55,13 +54,13 @@ int32_t bg_image_selection;
 #define CENTER_SPACE_WIDTH 13 // the horizontal space between the hour and minute digits
 
 #ifdef PBL_ROUND
-  #define SCREEN_CENTER_HORIZ 72
-  #define MONTHDAY_X_OFFSET_1 (slant_direction == 1 ? (25+18) : 83 )
-  #define MONTHDAY_Y_OFFSET_1 (slant_direction == 1 ? (168-49) : 140 )
-  #define MONTHDAY_X_OFFSET_2 (slant_direction == 1 ? (49+18) : 107 )  
-  #define MONTHDAY_Y_OFFSET_2 (slant_direction == 1 ? (168-38) : 129 )
-#else
   #define SCREEN_CENTER_HORIZ 90
+  #define MONTHDAY_X_OFFSET_1 (slant_direction == 1 ? 72 : 60 )
+  #define MONTHDAY_Y_OFFSET_1 (slant_direction == 1 ? 124 : 145 )
+  #define MONTHDAY_X_OFFSET_2 (slant_direction == 1 ? 97 : 85 )  
+  #define MONTHDAY_Y_OFFSET_2 (slant_direction == 1 ? 136 : 134 )
+#else
+  #define SCREEN_CENTER_HORIZ 72
   #define MONTHDAY_X_OFFSET_1 (slant_direction == 1 ? 25 : 63 )
   #define MONTHDAY_Y_OFFSET_1 (slant_direction == 1 ? (168-62) : (168-38) )
   #define MONTHDAY_X_OFFSET_2 (slant_direction == 1 ? 47 : 86 )  
@@ -683,10 +682,31 @@ static void middle_layer_update_proc(Layer *this_layer, GContext *ctx){
 }
 */
 
+#ifdef PBL_COLOR
+static void set_background_color(int color) {
+  GColor background_color = GColorFromHEX(color);
+  bitmap_layer_set_background_color(s_camo_bg_layer, background_color);
+  APP_LOG(APP_LOG_LEVEL_DEBUG,"Setting bg color to: %d",color);
+}
+#endif
+
+
 static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   
   Tuple *slant_dir_num_t = dict_find(iter, KEY_SLANT_DIR_NUM);
   Tuple *bg_image_t = dict_find(iter, KEY_BG_IMAGE);
+  Tuple *background_color_t = dict_find(iter, KEY_BG_COLOR);
+
+  if (background_color_t) {
+    int background_color = background_color_t->value->int32;
+
+    persist_write_int(KEY_BG_COLOR, background_color);
+
+    // set the background color for color watches only
+    #ifdef PBL_COLOR
+    set_background_color(background_color);
+    #endif
+  }
   
   int old_slant_direction = slant_direction;
 
@@ -792,8 +812,6 @@ static void main_window_load(Window *window){
     default: s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_BG_IMAGE); break;
   }
   
-  
-  
   // Create Layers
   
   Layer *window_layer = window_get_root_layer(window);
@@ -803,11 +821,14 @@ static void main_window_load(Window *window){
   bitmap_layer_set_bitmap(s_camo_bg_layer, s_camo_bitmap);
   layer_add_child(window_layer, bitmap_layer_get_layer(s_camo_bg_layer));
   
-  //GCompOpSet //bitmap_layer_set_compositing_mode
   #ifdef PBL_COLOR
-  GColor gc_bitmap_bg_color = GColorRed;
   bitmap_layer_set_compositing_mode(s_camo_bg_layer, GCompOpSet);
-  bitmap_layer_set_background_color(s_camo_bg_layer, gc_bitmap_bg_color);
+  if (persist_read_int(KEY_BG_COLOR)) {
+    int background_color = persist_read_int(KEY_BG_COLOR);
+    set_background_color(background_color);
+  } else {
+    set_background_color(0);
+  }
   #endif
   
   s_canvas_layer = layer_create(window_bounds);

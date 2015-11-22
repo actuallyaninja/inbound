@@ -18,7 +18,8 @@ Pebble.addEventListener('webviewclosed', function(e) {
 
     Pebble.sendAppMessage({
       slantDirectionNumber: configData.slantDirectionNumber,
-      backgroundImageSelection: configData.backgroundImageSelection
+      backgroundImageSelection: configData.backgroundImageSelection,
+      backgroundColor: parseInt(configData.backgroundColor, 16)
     }, function() {
       console.log('Send successful!');
     }, function() {
