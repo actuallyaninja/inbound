@@ -705,6 +705,28 @@ static void chevron_layer_update_proc(Layer *this_layer, GContext *ctx){
   GColorBrillantRose
   */
   
+  #ifdef PBL_COLOR
+  GColor palette[7] = { 
+                        GColorRichBrilliantLavender, 
+                        GColorBrilliantRose, 
+                        GColorRed,
+                        GColorPurple,
+                        GColorDukeBlue, 
+                        GColorBlue,
+                        GColorPictonBlue
+                      };
+  
+  #else
+  GColor palette[7] = {GColorWhite,GColorBlack,GColorWhite,GColorBlack,GColorWhite,GColorBlack,GColorWhite};
+  #endif
+    
+  for (int i = 0; i < 7; i++){
+    graphics_context_set_fill_color(ctx, palette[i]);  
+    gpath_move_to(s_chevron_path, GPoint(-110,29*(i-1)-70));
+    gpath_draw_filled(ctx, s_chevron_path);
+  }
+  
+  /*
   graphics_context_set_fill_color(ctx, COLOR_FALLBACK(GColorBlue,GColorWhite));  
   gpath_move_to(s_chevron_path, GPoint(0,110));
   gpath_draw_filled(ctx, s_chevron_path);
@@ -728,6 +750,7 @@ static void chevron_layer_update_proc(Layer *this_layer, GContext *ctx){
   graphics_context_set_fill_color(ctx, COLOR_FALLBACK(GColorRichBrilliantLavender,GColorBlack));  
   gpath_move_to(s_chevron_path, GPoint(0,-40));
   gpath_draw_filled(ctx, s_chevron_path);
+  */
 }
 
 static void inbox_received_handler(DictionaryIterator *iter, void *context) {
@@ -823,7 +846,7 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
 static void main_window_load(Window *window){
   
   //chevron
-  s_chevron_path = gpath_create(&CHEVRON);
+  s_chevron_path = gpath_create(&CHEVRON2);
   
   // read in persistent config values and set variables
   
