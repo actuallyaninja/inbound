@@ -3,6 +3,7 @@
 #include <math.h>
 #include <extramath.h>
 #include <positioning.h>
+#include <chevrons.h>
 
 //#define KEY_SLANT_DIRECTION 0
 #define KEY_SLANT_DIR_NUM 0
@@ -17,9 +18,11 @@ static GPath *s_number4_path;
 
 static GPath *s_monthday1_path;
 static GPath *s_monthday2_path;
+static GPath *s_chevron_path;
 
 static Window *s_main_window;
 static Layer *s_canvas_layer;
+static Layer *s_chevron_layer;
 static Layer *s_box1_layer;
 static Layer *s_box2_layer;
 static Layer *s_box3_layer;
@@ -61,10 +64,10 @@ int32_t bg_image_selection;
   #define MONTHDAY_Y_OFFSET_2 (slant_direction == 1 ? 136 : 134 )
 #else
   #define SCREEN_CENTER_HORIZ 72
-  #define MONTHDAY_X_OFFSET_1 (slant_direction == 1 ? 25 : 63 )
-  #define MONTHDAY_Y_OFFSET_1 (slant_direction == 1 ? (168-62) : (168-38) )
-  #define MONTHDAY_X_OFFSET_2 (slant_direction == 1 ? 47 : 86 )  
-  #define MONTHDAY_Y_OFFSET_2 (slant_direction == 1 ? (168-52) : (168-49) )
+  #define MONTHDAY_X_OFFSET_1 (slant_direction == 1 ? 56 : 42 )
+  #define MONTHDAY_Y_OFFSET_1 (slant_direction == 1 ? 114 : 136 )
+  #define MONTHDAY_X_OFFSET_2 (slant_direction == 1 ? 79 : 65 )  
+  #define MONTHDAY_Y_OFFSET_2 (slant_direction == 1 ? 124 : 125 )
 #endif
 
 GColor background_color;
@@ -526,6 +529,7 @@ static void set_day_digit2_pathinfo_from_existing(GPathInfo existing2, int targe
 static void canvas_update_proc(Layer *this_layer, GContext *ctx) {
 
   
+  
   gpath_rotate_to(s_monthday1_path, ROTATION_ANGLE*slant_direction);
   gpath_rotate_to(s_monthday2_path, ROTATION_ANGLE*slant_direction);
   // draw drop shadows
@@ -690,6 +694,41 @@ static void set_background_color(int color) {
 }
 #endif
 
+// chevron
+static void chevron_layer_update_proc(Layer *this_layer, GContext *ctx){
+  // blue-to-red pallette:
+  /*
+  GColorCyan
+  GColorBlue
+  GColorPurple
+  GColorRed
+  GColorBrillantRose
+  */
+  
+  graphics_context_set_fill_color(ctx, COLOR_FALLBACK(GColorBlue,GColorWhite));  
+  gpath_move_to(s_chevron_path, GPoint(0,110));
+  gpath_draw_filled(ctx, s_chevron_path);
+
+  graphics_context_set_fill_color(ctx, COLOR_FALLBACK(GColorDukeBlue,GColorBlack));  
+  gpath_move_to(s_chevron_path, GPoint(0,80));
+  gpath_draw_filled(ctx, s_chevron_path);
+  
+  graphics_context_set_fill_color(ctx, COLOR_FALLBACK(GColorPurple,GColorWhite));  
+  gpath_move_to(s_chevron_path, GPoint(0,50));
+  gpath_draw_filled(ctx, s_chevron_path);
+  
+  graphics_context_set_fill_color(ctx, COLOR_FALLBACK(GColorRed,GColorBlack));  
+  gpath_move_to(s_chevron_path, GPoint(0,20));
+  gpath_draw_filled(ctx, s_chevron_path);
+  
+  graphics_context_set_fill_color(ctx, COLOR_FALLBACK(GColorBrilliantRose,GColorWhite));  
+  gpath_move_to(s_chevron_path, GPoint(0,-10));
+  gpath_draw_filled(ctx, s_chevron_path);
+  
+  graphics_context_set_fill_color(ctx, COLOR_FALLBACK(GColorRichBrilliantLavender,GColorBlack));  
+  gpath_move_to(s_chevron_path, GPoint(0,-40));
+  gpath_draw_filled(ctx, s_chevron_path);
+}
 
 static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   
@@ -783,6 +822,9 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
 
 static void main_window_load(Window *window){
   
+  //chevron
+  s_chevron_path = gpath_create(&CHEVRON);
+  
   // read in persistent config values and set variables
   
   // set slant direction from persistent storage
@@ -831,6 +873,10 @@ static void main_window_load(Window *window){
   }
   #endif
   
+  //chevron layer
+  s_chevron_layer = layer_create(window_bounds);
+  layer_add_child(window_layer,s_chevron_layer);
+  
   s_canvas_layer = layer_create(window_bounds);
   //layer_add_child(bitmap_layer_get_layer(s_camo_bg_layer), s_canvas_layer);
   layer_add_child(window_layer, s_canvas_layer);
@@ -863,6 +909,8 @@ static void main_window_load(Window *window){
   layer_set_update_proc(s_box3_layer, box3_update_proc);
   layer_set_update_proc(s_box4_layer, box4_update_proc);
   
+  layer_set_update_proc(s_chevron_layer, chevron_layer_update_proc);
+  
   //s_time_middle_layer = layer_create(GRect(-5,60,5,60));
   //layer_set_update_proc(s_time_middle_layer, middle_layer_update_proc);
   //layer_add_child(window_layer, s_time_middle_layer);
@@ -880,6 +928,7 @@ static void main_window_unload(Window *window){
   bitmap_layer_destroy(s_camo_bg_layer);
   layer_destroy(s_canvas_layer);
   gbitmap_destroy(s_camo_bitmap);
+  gpath_destroy(s_chevron_path);
   
 }
    
