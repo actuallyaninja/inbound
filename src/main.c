@@ -29,8 +29,8 @@ static Layer *s_box3_layer;
 static Layer *s_box4_layer;
 //static Layer *s_time_middle_layer;
 
-static GBitmap *s_camo_bitmap;
-static BitmapLayer *s_camo_bg_layer;
+//static GBitmap *s_camo_bitmap;
+//static BitmapLayer *s_camo_bg_layer;
 
 int8_t currentHour, currentMinute, currentMonthDay;
 int8_t previousHour, previousMinute;
@@ -687,10 +687,16 @@ static void middle_layer_update_proc(Layer *this_layer, GContext *ctx){
 */
 
 #ifdef PBL_COLOR
+/*
 static void set_background_color(int color) {
   GColor background_color = GColorFromHEX(color);
   bitmap_layer_set_background_color(s_camo_bg_layer, background_color);
   APP_LOG(APP_LOG_LEVEL_DEBUG,"Setting bg color to: %d",color);
+}
+*/
+
+static void set_color_scheme(int color_scheme){
+  
 }
 #endif
 
@@ -704,53 +710,54 @@ static void chevron_layer_update_proc(Layer *this_layer, GContext *ctx){
   GColorRed
   GColorBrillantRose
   */
-  
   #ifdef PBL_COLOR
+  /*
   GColor palette[7] = { 
                         GColorRichBrilliantLavender, 
                         GColorBrilliantRose, 
                         GColorRed,
                         GColorPurple,
-                        GColorDukeBlue, 
-                        GColorBlue,
-                        GColorPictonBlue
+                        GColorBlue, 
+                        GColorVividCerulean,
+                        GColorCeleste
                       };
+    */
+  /*
+  GColor palette2[7] = { 
+                        GColorIcterine,
+                        GColorYellow, 
+                        GColorChromeYellow, 
+                        GColorOrange,
+                        GColorRed, 
+                        GColorDarkCandyAppleRed,
+                        GColorImperialPurple
+                      };
+  */
+  GColor palette3[7] = {
+    GColorBrass,
+    GColorLimerick,
+    GColorWindsorTan,
+    GColorArmyGreen,
+    //GColorMidnightGreen,
+    
+    GColorDarkGreen,
+    GColorJaegerGreen,
+    GColorMayGreen
+    
+  };
   
   #else
-  GColor palette[7] = {GColorWhite,GColorBlack,GColorWhite,GColorBlack,GColorWhite,GColorBlack,GColorWhite};
+  //GColor palette[7] = {GColorWhite,GColorBlack,GColorWhite,GColorBlack,GColorWhite,GColorBlack,GColorWhite};
+  //GColor palette2[7] = {GColorWhite,GColorBlack,GColorWhite,GColorBlack,GColorWhite,GColorBlack,GColorWhite};
+  GColor palette3[7] = {GColorWhite,GColorBlack,GColorWhite,GColorBlack,GColorWhite,GColorBlack,GColorWhite};
   #endif
-    
+      
   for (int i = 0; i < 7; i++){
-    graphics_context_set_fill_color(ctx, palette[i]);  
+    graphics_context_set_fill_color(ctx, palette3[i]);
     gpath_move_to(s_chevron_path, GPoint(-110,29*(i-1)-70));
     gpath_draw_filled(ctx, s_chevron_path);
   }
   
-  /*
-  graphics_context_set_fill_color(ctx, COLOR_FALLBACK(GColorBlue,GColorWhite));  
-  gpath_move_to(s_chevron_path, GPoint(0,110));
-  gpath_draw_filled(ctx, s_chevron_path);
-
-  graphics_context_set_fill_color(ctx, COLOR_FALLBACK(GColorDukeBlue,GColorBlack));  
-  gpath_move_to(s_chevron_path, GPoint(0,80));
-  gpath_draw_filled(ctx, s_chevron_path);
-  
-  graphics_context_set_fill_color(ctx, COLOR_FALLBACK(GColorPurple,GColorWhite));  
-  gpath_move_to(s_chevron_path, GPoint(0,50));
-  gpath_draw_filled(ctx, s_chevron_path);
-  
-  graphics_context_set_fill_color(ctx, COLOR_FALLBACK(GColorRed,GColorBlack));  
-  gpath_move_to(s_chevron_path, GPoint(0,20));
-  gpath_draw_filled(ctx, s_chevron_path);
-  
-  graphics_context_set_fill_color(ctx, COLOR_FALLBACK(GColorBrilliantRose,GColorWhite));  
-  gpath_move_to(s_chevron_path, GPoint(0,-10));
-  gpath_draw_filled(ctx, s_chevron_path);
-  
-  graphics_context_set_fill_color(ctx, COLOR_FALLBACK(GColorRichBrilliantLavender,GColorBlack));  
-  gpath_move_to(s_chevron_path, GPoint(0,-40));
-  gpath_draw_filled(ctx, s_chevron_path);
-  */
 }
 
 static void inbox_received_handler(DictionaryIterator *iter, void *context) {
@@ -766,7 +773,8 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
 
     // set the background color for color watches only
     #ifdef PBL_COLOR
-    set_background_color(background_color);
+    //set_background_color(background_color);
+    set_color_scheme(background_color);
     #endif
   }
   
@@ -812,6 +820,8 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   //APP_LOG(APP_LOG_LEVEL_DEBUG,"new_bg_image_selection: %d", (int)new_bg_image_selection);
   //APP_LOG(APP_LOG_LEVEL_DEBUG,"bg_image_selection value stored in persistent storage: %d", (int)persist_read_int(KEY_BG_IMAGE));
   
+  /*
+  
   if(bg_image_selection != new_bg_image_selection){ // don't do anything if the bg selection didn't change.
     
     bg_image_selection = new_bg_image_selection;
@@ -836,6 +846,7 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   //APP_LOG(APP_LOG_LEVEL_DEBUG,"inbox message recd. - set slant dir num tuple value: %s", slant_dir_num_t->value->cstring);
   //APP_LOG(APP_LOG_LEVEL_DEBUG,"inbox message recd. - bg image tuple value: %s", bg_image_t->value->cstring);
   
+  */
   
   //persist_write_int(KEY_SLANT_DIR_NUM, (int)slant_dir_num_t->value->int32);
   persist_write_int(KEY_BG_IMAGE, bg_image_selection);
@@ -868,7 +879,7 @@ static void main_window_load(Window *window){
   } else {
     bg_image_selection = 1;
   }  // default to 1 if no persistent storage exists yet
-  
+/*  
   switch (bg_image_selection){
     case 1: s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_BG_IMAGE); break;
     case 2: s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_RED); break;
@@ -876,12 +887,12 @@ static void main_window_load(Window *window){
     case 4: s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_PSYCH_CAMO); break;
     default: s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_BG_IMAGE); break;
   }
-  
+  */
   // Create Layers
   
   Layer *window_layer = window_get_root_layer(window);
   GRect window_bounds = layer_get_bounds(window_layer);
-  
+  /*
   s_camo_bg_layer = bitmap_layer_create(window_bounds);
   bitmap_layer_set_bitmap(s_camo_bg_layer, s_camo_bitmap);
   layer_add_child(window_layer, bitmap_layer_get_layer(s_camo_bg_layer));
@@ -895,6 +906,7 @@ static void main_window_load(Window *window){
     set_background_color(0);
   }
   #endif
+  */
   
   //chevron layer
   s_chevron_layer = layer_create(window_bounds);
@@ -948,9 +960,12 @@ static void main_window_unload(Window *window){
   layer_destroy(s_box4_layer);
   
   //layer_destroy(s_time_middle_layer);
+/*
   bitmap_layer_destroy(s_camo_bg_layer);
-  layer_destroy(s_canvas_layer);
+  
   gbitmap_destroy(s_camo_bitmap);
+  */
+  layer_destroy(s_canvas_layer);
   gpath_destroy(s_chevron_path);
   
 }
