@@ -710,50 +710,33 @@ static void chevron_layer_update_proc(Layer *this_layer, GContext *ctx){
   GColorRed
   GColorBrillantRose
   */
-  #ifdef PBL_COLOR
-  /*
-  GColor palette[7] = { 
-                        GColorRichBrilliantLavender, 
-                        GColorBrilliantRose, 
-                        GColorRed,
-                        GColorPurple,
-                        GColorBlue, 
-                        GColorVividCerulean,
-                        GColorCeleste
-                      };
-    */
-  /*
-  GColor palette2[7] = { 
-                        GColorIcterine,
-                        GColorYellow, 
-                        GColorChromeYellow, 
-                        GColorOrange,
-                        GColorRed, 
-                        GColorDarkCandyAppleRed,
-                        GColorImperialPurple
-                      };
-  */
-  GColor palette3[7] = {
-    GColorBrass,
-    GColorLimerick,
-    GColorWindsorTan,
-    GColorArmyGreen,
-    //GColorMidnightGreen,
-    
-    GColorDarkGreen,
-    GColorJaegerGreen,
-    GColorMayGreen
-    
-  };
   
+  
+  #ifdef PBL_COLOR
+  GColor8 palette[7] = YELLOWPURP_PALETTE; //REDBLUE_PALETTE;
+  //int bgcolorscheme = 0;
+  /*
+  switch (bgcolorscheme){
+    case 0:
+      
+    break;
+    case 1:
+      
+    break;
+    case 2:
+      
+    break;
+    default:
+    
+    break;
+  } 
+  */
   #else
-  //GColor palette[7] = {GColorWhite,GColorBlack,GColorWhite,GColorBlack,GColorWhite,GColorBlack,GColorWhite};
-  //GColor palette2[7] = {GColorWhite,GColorBlack,GColorWhite,GColorBlack,GColorWhite,GColorBlack,GColorWhite};
-  GColor palette3[7] = {GColorWhite,GColorBlack,GColorWhite,GColorBlack,GColorWhite,GColorBlack,GColorWhite};
+  GColor palette[7] = {GColorWhite,GColorBlack,GColorWhite,GColorBlack,GColorWhite,GColorBlack,GColorWhite};
   #endif
       
   for (int i = 0; i < 7; i++){
-    graphics_context_set_fill_color(ctx, palette3[i]);
+    graphics_context_set_fill_color(ctx, palette[i]);
     gpath_move_to(s_chevron_path, GPoint(-110,29*(i-1)-70));
     gpath_draw_filled(ctx, s_chevron_path);
   }
