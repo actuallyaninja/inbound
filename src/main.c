@@ -32,6 +32,11 @@ static Layer *s_box4_layer;
 //static GBitmap *s_camo_bitmap;
 //static BitmapLayer *s_camo_bg_layer;
 
+//static GColor8 *s_chevron_color_palette[NUM_PALETTE_COLORS];
+#ifdef PBL_COLOR
+static uint8_t s_chevron_color_palette[NUM_PALETTE_COLORS] = {GColorRedARGB8};
+#endif
+
 int8_t currentHour, currentMinute, currentMonthDay;
 int8_t previousHour, previousMinute;
 static char month_and_weekday_buffer[50];
@@ -687,6 +692,7 @@ static void middle_layer_update_proc(Layer *this_layer, GContext *ctx){
 */
 
 #ifdef PBL_COLOR
+
 /*
 static void set_background_color(int color) {
   GColor background_color = GColorFromHEX(color);
@@ -695,49 +701,37 @@ static void set_background_color(int color) {
 }
 */
 
-static void set_color_scheme(int color_scheme){
-  
+static void set_color_palette(int color_scheme){
+  if (color_scheme>3){color_scheme=1;}//default is palette #1
+  for (int i = 0; i < NUM_PALETTE_COLORS; i++){
+    s_chevron_color_palette[i] = PALETTES[color_scheme-1][i];
+    //APP_LOG(APP_LOG_LEVEL_DEBUG,"set color palette: index=%d, bg selection=%d, PALETTES[] color=%d",i,(int)bg_image_selection,(int)PALETTES[color_scheme-1][i]);
+  }
 }
 #endif
 
 // chevron
 static void chevron_layer_update_proc(Layer *this_layer, GContext *ctx){
-  // blue-to-red pallette:
-  /*
-  GColorCyan
-  GColorBlue
-  GColorPurple
-  GColorRed
-  GColorBrillantRose
-  */
-  
-  
-  #ifdef PBL_COLOR
-  GColor8 palette[7] = YELLOWPURP_PALETTE; //REDBLUE_PALETTE;
-  //int bgcolorscheme = 0;
-  /*
-  switch (bgcolorscheme){
-    case 0:
-      
-    break;
-    case 1:
-      
-    break;
-    case 2:
-      
-    break;
-    default:
     
-    break;
-  } 
-  */
+  #ifdef PBL_COLOR
+  //does anything need to go here?
   #else
-  GColor palette[7] = {GColorWhite,GColorBlack,GColorWhite,GColorBlack,GColorWhite,GColorBlack,GColorWhite};
+  GColor palette[NUM_PALETTE_COLORS] = {GColorWhite,GColorBlack,GColorWhite,GColorBlack,GColorWhite,GColorBlack,GColorWhite};
   #endif
       
-  for (int i = 0; i < 7; i++){
+  for (int i = 0; i < NUM_PALETTE_COLORS; i++){
+    #ifdef PBL_COLOR
+    graphics_context_set_fill_color(ctx, (GColor)s_chevron_color_palette[i]);
+    //APP_LOG(APP_LOG_LEVEL_DEBUG,"setting chevron [%d] to color %d",i,(int)s_chevron_color_palette[i]);
+    #else
     graphics_context_set_fill_color(ctx, palette[i]);
+    #endif
+    
+    #ifdef PBL_ROUND
     gpath_move_to(s_chevron_path, GPoint(-110,29*(i-1)-70));
+    #else
+    gpath_move_to(s_chevron_path, GPoint(-128,29*(i-1)-69));
+    #endif
     gpath_draw_filled(ctx, s_chevron_path);
   }
   
@@ -747,8 +741,8 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   
   Tuple *slant_dir_num_t = dict_find(iter, KEY_SLANT_DIR_NUM);
   Tuple *bg_image_t = dict_find(iter, KEY_BG_IMAGE);
-  Tuple *background_color_t = dict_find(iter, KEY_BG_COLOR);
-
+  //Tuple *background_color_t = dict_find(iter, KEY_BG_COLOR);
+/*
   if (background_color_t) {
     int background_color = background_color_t->value->int32;
 
@@ -760,6 +754,7 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     set_color_scheme(background_color);
     #endif
   }
+  */
   
   int old_slant_direction = slant_direction;
 
@@ -800,6 +795,11 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   const int32_t new_bg_image_selection = (int32_t)atoi(bg_image_t->value->cstring);
   persist_write_int(KEY_BG_IMAGE, new_bg_image_selection);
   
+  #ifdef PBL_COLOR
+  set_color_palette(new_bg_image_selection);
+  layer_mark_dirty(s_chevron_layer);
+  #endif
+    
   //APP_LOG(APP_LOG_LEVEL_DEBUG,"new_bg_image_selection: %d", (int)new_bg_image_selection);
   //APP_LOG(APP_LOG_LEVEL_DEBUG,"bg_image_selection value stored in persistent storage: %d", (int)persist_read_int(KEY_BG_IMAGE));
   
@@ -832,7 +832,7 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   */
   
   //persist_write_int(KEY_SLANT_DIR_NUM, (int)slant_dir_num_t->value->int32);
-  persist_write_int(KEY_BG_IMAGE, bg_image_selection);
+  //persist_write_int(KEY_BG_IMAGE, bg_image_selection);
 
   
 }
@@ -862,6 +862,12 @@ static void main_window_load(Window *window){
   } else {
     bg_image_selection = 1;
   }  // default to 1 if no persistent storage exists yet
+  
+  #ifdef PBL_COLOR
+  set_color_palette(bg_image_selection);
+  #else
+  // statements for BW app
+  #endif
 /*  
   switch (bg_image_selection){
     case 1: s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_BG_IMAGE); break;
@@ -949,6 +955,7 @@ static void main_window_unload(Window *window){
   gbitmap_destroy(s_camo_bitmap);
   */
   layer_destroy(s_canvas_layer);
+  layer_destroy(s_chevron_layer);
   gpath_destroy(s_chevron_path);
   
 }
