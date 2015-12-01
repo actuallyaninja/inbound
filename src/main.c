@@ -702,23 +702,22 @@ static void set_background_color(int color) {
 */
 
 static void set_color_palette(int color_scheme){
-  if (color_scheme>3){color_scheme=1;}//default is palette #1
+  if (color_scheme > NUM_PALETTES){color_scheme = 1;} //default is palette #1
   for (int i = 0; i < NUM_PALETTE_COLORS; i++){
     s_chevron_color_palette[i] = PALETTES[color_scheme-1][i];
-    //APP_LOG(APP_LOG_LEVEL_DEBUG,"set color palette: index=%d, bg selection=%d, PALETTES[] color=%d",i,(int)bg_image_selection,(int)PALETTES[color_scheme-1][i]);
   }
 }
 #endif
 
 // chevron
 static void chevron_layer_update_proc(Layer *this_layer, GContext *ctx){
-    
+  
   #ifdef PBL_COLOR
   //does anything need to go here?
   #else
-  GColor palette[NUM_PALETTE_COLORS] = {GColorWhite,GColorBlack,GColorWhite,GColorBlack,GColorWhite,GColorBlack,GColorWhite};
+  GColor palette[NUM_PALETTE_COLORS] = {GColorWhite,GColorBlack,GColorBlack,GColorBlack,GColorBlack,GColorBlack,GColorWhite};
   #endif
-      
+
   for (int i = 0; i < NUM_PALETTE_COLORS; i++){
     #ifdef PBL_COLOR
     graphics_context_set_fill_color(ctx, (GColor)s_chevron_color_palette[i]);
@@ -726,7 +725,7 @@ static void chevron_layer_update_proc(Layer *this_layer, GContext *ctx){
     #else
     graphics_context_set_fill_color(ctx, palette[i]);
     #endif
-    
+
     #ifdef PBL_ROUND
     gpath_move_to(s_chevron_path, GPoint(-110,29*(i-1)-70));
     #else
@@ -734,7 +733,7 @@ static void chevron_layer_update_proc(Layer *this_layer, GContext *ctx){
     #endif
     gpath_draw_filled(ctx, s_chevron_path);
   }
-  
+
 }
 
 static void inbox_received_handler(DictionaryIterator *iter, void *context) {
@@ -840,7 +839,7 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
 static void main_window_load(Window *window){
   
   //chevron
-  s_chevron_path = gpath_create(&CHEVRON2);
+  s_chevron_path = gpath_create(&CHEVRON);
   
   // read in persistent config values and set variables
   

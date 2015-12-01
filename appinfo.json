@@ -15,9 +15,7 @@
                 "file": "images/CAMO_BG_IMAGE",
                 "name": "CAMO_BG_IMAGE",
                 "targetPlatforms": [
-                    "aplite",
-                    "basalt",
-                    "chalk"
+                    "aplite"
                 ],
                 "type": "png"
             },
@@ -25,9 +23,7 @@
                 "file": "images/CAMO_BLUE",
                 "name": "CAMO_BLUE",
                 "targetPlatforms": [
-                    "aplite",
-                    "basalt",
-                    "chalk"
+                    "aplite"
                 ],
                 "type": "png"
             },
@@ -35,9 +31,7 @@
                 "file": "images/PSYCH_CAMO",
                 "name": "PSYCH_CAMO",
                 "targetPlatforms": [
-                    "aplite",
-                    "basalt",
-                    "chalk"
+                    "aplite"
                 ],
                 "type": "png"
             },
