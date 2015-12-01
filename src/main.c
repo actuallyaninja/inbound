@@ -32,10 +32,12 @@ static Layer *s_box4_layer;
 //static GBitmap *s_camo_bitmap;
 //static BitmapLayer *s_camo_bg_layer;
 
-//static GColor8 *s_chevron_color_palette[NUM_PALETTE_COLORS];
-#ifdef PBL_COLOR
-static uint8_t s_chevron_color_palette[NUM_PALETTE_COLORS] = {GColorRedARGB8};
-#endif
+static GBitmap *s_fill_bitmap;
+static BitmapLayer *s_fill_bitmap_layer;
+
+//#ifdef PBL_COLOR
+static uint8_t s_chevron_color_palette[NUM_PALETTE_COLORS] = {0};
+//#endif
 
 int8_t currentHour, currentMinute, currentMonthDay;
 int8_t previousHour, previousMinute;
@@ -691,7 +693,7 @@ static void middle_layer_update_proc(Layer *this_layer, GContext *ctx){
 }
 */
 
-#ifdef PBL_COLOR
+
 
 /*
 static void set_background_color(int color) {
@@ -702,36 +704,49 @@ static void set_background_color(int color) {
 */
 
 static void set_color_palette(int color_scheme){
+  
   if (color_scheme > NUM_PALETTES){color_scheme = 1;} //default is palette #1
+  
+  
   for (int i = 0; i < NUM_PALETTE_COLORS; i++){
+    
     s_chevron_color_palette[i] = PALETTES[color_scheme-1][i];
+    
   }
 }
-#endif
+
 
 // chevron
 static void chevron_layer_update_proc(Layer *this_layer, GContext *ctx){
-  
+  /*
   #ifdef PBL_COLOR
   //does anything need to go here?
   #else
   GColor palette[NUM_PALETTE_COLORS] = {GColorWhite,GColorBlack,GColorBlack,GColorBlack,GColorBlack,GColorBlack,GColorWhite};
   #endif
-
+  */
+  
   for (int i = 0; i < NUM_PALETTE_COLORS; i++){
+    /*
     #ifdef PBL_COLOR
     graphics_context_set_fill_color(ctx, (GColor)s_chevron_color_palette[i]);
     //APP_LOG(APP_LOG_LEVEL_DEBUG,"setting chevron [%d] to color %d",i,(int)s_chevron_color_palette[i]);
     #else
     graphics_context_set_fill_color(ctx, palette[i]);
     #endif
-
-    #ifdef PBL_ROUND
-    gpath_move_to(s_chevron_path, GPoint(-110,29*(i-1)-70));
-    #else
-    gpath_move_to(s_chevron_path, GPoint(-128,29*(i-1)-69));
-    #endif
-    gpath_draw_filled(ctx, s_chevron_path);
+    */
+    
+    if (!gcolor_equal((GColor)s_chevron_color_palette[i],GColorClear)){
+      graphics_context_set_fill_color(ctx, (GColor)s_chevron_color_palette[i]);
+      
+      #ifdef PBL_ROUND
+      gpath_move_to(s_chevron_path, GPoint(-110,29*(i-1)-70));
+      #else
+      gpath_move_to(s_chevron_path, GPoint(-128,29*(i-1)-69));
+      #endif
+      
+      gpath_draw_filled(ctx, s_chevron_path);
+    }
   }
 
 }
@@ -794,10 +809,10 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   const int32_t new_bg_image_selection = (int32_t)atoi(bg_image_t->value->cstring);
   persist_write_int(KEY_BG_IMAGE, new_bg_image_selection);
   
-  #ifdef PBL_COLOR
+  //#ifdef PBL_COLOR
   set_color_palette(new_bg_image_selection);
   layer_mark_dirty(s_chevron_layer);
-  #endif
+  //#endif
     
   //APP_LOG(APP_LOG_LEVEL_DEBUG,"new_bg_image_selection: %d", (int)new_bg_image_selection);
   //APP_LOG(APP_LOG_LEVEL_DEBUG,"bg_image_selection value stored in persistent storage: %d", (int)persist_read_int(KEY_BG_IMAGE));
@@ -862,11 +877,11 @@ static void main_window_load(Window *window){
     bg_image_selection = 1;
   }  // default to 1 if no persistent storage exists yet
   
-  #ifdef PBL_COLOR
+  //#ifdef PBL_COLOR
   set_color_palette(bg_image_selection);
-  #else
+  //#else
   // statements for BW app
-  #endif
+  //#endif
 /*  
   switch (bg_image_selection){
     case 1: s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_BG_IMAGE); break;
@@ -895,6 +910,15 @@ static void main_window_load(Window *window){
   }
   #endif
   */
+  
+  // fill layer (BW only)
+  #ifdef PBL_BW
+  s_fill_bitmap = gbitmap_create_with_resource(RESOURCE_ID_PCT_50_FILL);
+  s_fill_bitmap_layer = bitmap_layer_create(GRect(0, 0, 144, 168));
+  bitmap_layer_set_bitmap(s_fill_bitmap_layer, s_fill_bitmap);
+  layer_add_child(window_layer, bitmap_layer_get_layer(s_fill_bitmap_layer));
+  bitmap_layer_set_background_color(s_fill_bitmap_layer, GColorWhite);
+  #endif
   
   //chevron layer
   s_chevron_layer = layer_create(window_bounds);
@@ -953,6 +977,10 @@ static void main_window_unload(Window *window){
   
   gbitmap_destroy(s_camo_bitmap);
   */
+
+  gbitmap_destroy(s_fill_bitmap);
+  bitmap_layer_destroy(s_fill_bitmap_layer);
+
   layer_destroy(s_canvas_layer);
   layer_destroy(s_chevron_layer);
   gpath_destroy(s_chevron_path);

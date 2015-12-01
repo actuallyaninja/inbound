@@ -32,11 +32,26 @@ static const uint8_t PALETTES[NUM_PALETTES][NUM_PALETTE_COLORS] = {
                                       GColorDarkGreenARGB8,GColorJaegerGreenARGB8,GColorMayGreenARGB8},
     {GColorBulgarianRoseARGB8,GColorDarkCandyAppleRedARGB8,GColorOrangeARGB8,GColorChromeYellowARGB8,
                                       GColorCadetBlueARGB8,GColorBlueMoonARGB8,GColorMidnightGreenARGB8},
+    
     {GColorDarkGreenARGB8,GColorJaegerGreenARGB8,GColorOrangeARGB8,GColorChromeYellowARGB8,
                                       GColorDarkCandyAppleRedARGB8,GColorJazzberryJamARGB8,GColorImperialPurpleARGB8},
     {GColorWhiteARGB8,GColorLightGrayARGB8,GColorDarkGrayARGB8,GColorBlackARGB8,
                                       GColorDarkGrayARGB8,GColorLightGrayARGB8,GColorWhiteARGB8}
   
 };
-
+#else
+GColor PALETTES[NUM_PALETTES][NUM_PALETTE_COLORS] = {
+  {GColorWhite,GColorClear,GColorBlack,GColorBlack,
+                                      GColorBlack,GColorClear,GColorWhite},
+  {GColorBlack,GColorClear,GColorClear,GColorBlack,
+                                      GColorClear,GColorClear,GColorBlack},
+  {GColorWhite,GColorClear,GColorBlack,GColorBlack,
+                                      GColorBlack,GColorClear,GColorWhite},
+  {GColorWhite,GColorClear,GColorBlack,GColorBlack,
+                                      GColorBlack,GColorClear,GColorWhite},
+  {GColorWhite,GColorClear,GColorBlack,GColorBlack,
+                                      GColorBlack,GColorClear,GColorWhite},
+  {GColorWhite,GColorClear,GColorBlack,GColorBlack,
+                                      GColorBlack,GColorClear,GColorWhite}
+};
 #endif

@@ -12,36 +12,26 @@
     "resources": {
         "media": [
             {
-                "file": "images/CAMO_BG_IMAGE",
-                "name": "CAMO_BG_IMAGE",
+                "file": "images/PCT_25_FILL",
+                "name": "PCT_25_FILL",
                 "targetPlatforms": [
                     "aplite"
                 ],
                 "type": "png"
             },
             {
-                "file": "images/CAMO_BLUE",
-                "name": "CAMO_BLUE",
+                "file": "images/PCT_75_FILL",
+                "name": "PCT_75_FILL",
                 "targetPlatforms": [
                     "aplite"
                 ],
                 "type": "png"
             },
             {
-                "file": "images/PSYCH_CAMO",
-                "name": "PSYCH_CAMO",
+                "file": "images/PCT_50_FILL",
+                "name": "PCT_50_FILL",
                 "targetPlatforms": [
                     "aplite"
-                ],
-                "type": "png"
-            },
-            {
-                "file": "images/CAMO_RED",
-                "name": "CAMO_RED",
-                "targetPlatforms": [
-                    "aplite",
-                    "basalt",
-                    "chalk"
                 ],
                 "type": "png"
             },
