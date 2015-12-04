@@ -3,7 +3,7 @@
 #include <pebble.h>
 
 #define NUM_PALETTE_COLORS 7
-#define NUM_PALETTES 6
+#define NUM_PALETTES 7
 #ifdef PBL_ROUND
 #define SCREEN_WIDTH 180
 #define SCREEN_HEIGHT 180
@@ -30,28 +30,31 @@ static const uint8_t PALETTES[NUM_PALETTES][NUM_PALETTE_COLORS] = {
                                       GColorRedARGB8,GColorDarkCandyAppleRedARGB8,GColorImperialPurpleARGB8},
   {GColorBrassARGB8,GColorLimerickARGB8,GColorWindsorTanARGB8,GColorArmyGreenARGB8,
                                       GColorDarkGreenARGB8,GColorJaegerGreenARGB8,GColorMayGreenARGB8},
-    {GColorBulgarianRoseARGB8,GColorDarkCandyAppleRedARGB8,GColorOrangeARGB8,GColorChromeYellowARGB8,
-                                      GColorCadetBlueARGB8,GColorBlueMoonARGB8,GColorMidnightGreenARGB8},
-    
-    {GColorDarkGreenARGB8,GColorJaegerGreenARGB8,GColorOrangeARGB8,GColorChromeYellowARGB8,
+  {GColorBulgarianRoseARGB8,GColorDarkCandyAppleRedARGB8,GColorOrangeARGB8,GColorChromeYellowARGB8,
+                                      GColorCadetBlueARGB8,GColorBlueMoonARGB8,GColorMidnightGreenARGB8},    
+  {GColorDarkGreenARGB8,GColorJaegerGreenARGB8,GColorOrangeARGB8,GColorChromeYellowARGB8,
                                       GColorDarkCandyAppleRedARGB8,GColorJazzberryJamARGB8,GColorImperialPurpleARGB8},
-    {GColorWhiteARGB8,GColorLightGrayARGB8,GColorDarkGrayARGB8,GColorBlackARGB8,
-                                      GColorDarkGrayARGB8,GColorLightGrayARGB8,GColorWhiteARGB8}
+  {GColorWhiteARGB8,GColorLightGrayARGB8,GColorDarkGrayARGB8,GColorBlackARGB8,
+                                      GColorDarkGrayARGB8,GColorLightGrayARGB8,GColorWhiteARGB8},
+  {GColorWhiteARGB8,GColorRedARGB8,GColorBlueARGB8,GColorBlueARGB8,
+                                      GColorBlueARGB8,GColorRedARGB8,GColorWhiteARGB8}
   
 };
 #else
 GColor PALETTES[NUM_PALETTES][NUM_PALETTE_COLORS] = {
+  {GColorBlack,GColorClear,GColorBlack,GColorBlack,
+                                      GColorBlack,GColorClear,GColorBlack},
   {GColorWhite,GColorClear,GColorBlack,GColorBlack,
                                       GColorBlack,GColorClear,GColorWhite},
   {GColorBlack,GColorClear,GColorClear,GColorBlack,
                                       GColorClear,GColorClear,GColorBlack},
-  {GColorWhite,GColorClear,GColorBlack,GColorBlack,
+  {GColorWhite,GColorBlack,GColorClear,GColorClear,
+                                      GColorClear,GColorBlack,GColorWhite},
+  {GColorBlack,GColorClear,GColorClear,GColorClear,
+                                      GColorClear,GColorClear,GColorBlack},
+  {GColorWhite,GColorClear,GColorBlack,GColorClear,
                                       GColorBlack,GColorClear,GColorWhite},
-  {GColorWhite,GColorClear,GColorBlack,GColorBlack,
-                                      GColorBlack,GColorClear,GColorWhite},
-  {GColorWhite,GColorClear,GColorBlack,GColorBlack,
-                                      GColorBlack,GColorClear,GColorWhite},
-  {GColorWhite,GColorClear,GColorBlack,GColorBlack,
-                                      GColorBlack,GColorClear,GColorWhite}
+  {GColorClear,GColorClear,GColorClear,GColorBlack,
+                                      GColorClear,GColorClear,GColorClear}
 };
 #endif
