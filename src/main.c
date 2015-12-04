@@ -65,16 +65,16 @@ int32_t bg_image_selection;
 
 #ifdef PBL_ROUND
   #define SCREEN_CENTER_HORIZ 90
-  #define MONTHDAY_X_OFFSET_1 (slant_direction == 1 ? 72 : 60 )
-  #define MONTHDAY_Y_OFFSET_1 (slant_direction == 1 ? 124 : 145 )
-  #define MONTHDAY_X_OFFSET_2 (slant_direction == 1 ? 97 : 85 )  
-  #define MONTHDAY_Y_OFFSET_2 (slant_direction == 1 ? 136 : 134 )
+  #define MONTHDAY_X_OFFSET_1 (slant_direction == 1 ? 57 : 78 )
+  #define MONTHDAY_Y_OFFSET_1 (slant_direction == 1 ? 118 : 136 )
+  #define MONTHDAY_X_OFFSET_2 (slant_direction == 1 ? 82 : 103 )  
+  #define MONTHDAY_Y_OFFSET_2 (slant_direction == 1 ? 130 : 125 )
 #else
   #define SCREEN_CENTER_HORIZ 72
-  #define MONTHDAY_X_OFFSET_1 (slant_direction == 1 ? 56 : 42 )
-  #define MONTHDAY_Y_OFFSET_1 (slant_direction == 1 ? 114 : 136 )
-  #define MONTHDAY_X_OFFSET_2 (slant_direction == 1 ? 79 : 65 )  
-  #define MONTHDAY_Y_OFFSET_2 (slant_direction == 1 ? 124 : 125 )
+  #define MONTHDAY_X_OFFSET_1 (slant_direction == 1 ? 41 : 59 )
+  #define MONTHDAY_Y_OFFSET_1 (slant_direction == 1 ? 114 : 133 )
+  #define MONTHDAY_X_OFFSET_2 (slant_direction == 1 ? 64 : 82 )  
+  #define MONTHDAY_Y_OFFSET_2 (slant_direction == 1 ? 124 : 122 )
 #endif
 
 GColor background_color;
@@ -742,7 +742,7 @@ static void chevron_layer_update_proc(Layer *this_layer, GContext *ctx){
       #ifdef PBL_ROUND
       gpath_move_to(s_chevron_path, GPoint(-110,29*(i-1)-70));
       #else
-      gpath_move_to(s_chevron_path, GPoint(-128,29*(i-1)-69));
+      gpath_move_to(s_chevron_path, GPoint(-128,29*(i-1)-75));
       #endif
       
       gpath_draw_filled(ctx, s_chevron_path);

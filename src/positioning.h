@@ -33,8 +33,6 @@ GPoint number_point_setup(GPoint origin, int default_spacing, int center_spacing
   // rotate them
   my_return = rotate_gpoint(origin, my_return, rotation_angle);
   
-  
-  
   return my_return;
 }
 
