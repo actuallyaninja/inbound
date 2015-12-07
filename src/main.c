@@ -72,7 +72,7 @@ int32_t bg_image_selection;
 #else
   #define SCREEN_CENTER_HORIZ 72
   #define MONTHDAY_X_OFFSET_1 (slant_direction == 1 ? 41 : 59 )
-  #define MONTHDAY_Y_OFFSET_1 (slant_direction == 1 ? 114 : 133 )
+  #define MONTHDAY_Y_OFFSET_1 (slant_direction == 1 ? 113 : 133 )
   #define MONTHDAY_X_OFFSET_2 (slant_direction == 1 ? 64 : 82 )  
   #define MONTHDAY_Y_OFFSET_2 (slant_direction == 1 ? 124 : 122 )
 #endif
@@ -741,11 +741,20 @@ static void chevron_layer_update_proc(Layer *this_layer, GContext *ctx){
       
       #ifdef PBL_ROUND
       gpath_move_to(s_chevron_path, GPoint(-110,29*(i-1)-70));
-      #else
-      gpath_move_to(s_chevron_path, GPoint(-128,29*(i-1)-75));
-      #endif
-      
       gpath_draw_filled(ctx, s_chevron_path);
+      #else
+      gpath_move_to(s_chevron_path, GPoint(-128,29*(i-1)-73));
+      gpath_draw_filled(ctx, s_chevron_path);
+      if(i == (NUM_PALETTE_COLORS - 1)){
+        // draw
+        gpath_move_to(s_chevron_path, GPoint(-128,29*(i)-73));
+        gpath_draw_filled(ctx, s_chevron_path);
+      }
+      
+      //gpath_move_to(s_chevron_path, GPoint(-128,29*(i-1)-75));  // orig
+      #endif    
+      
+      //gpath_draw_filled(ctx, s_chevron_path);  // orig
     }
   }
 
