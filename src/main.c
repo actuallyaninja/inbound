@@ -707,17 +707,12 @@ static void set_color_palette(int color_scheme){
   
   if (color_scheme > NUM_PALETTES){color_scheme = 1;} //default is palette #1
   
-  
   for (int i = 0; i < NUM_PALETTE_COLORS; i++){
-    
-    s_chevron_color_palette[i] = PALETTES[color_scheme-1][i];
-    
+    s_chevron_color_palette[i] = PALETTES[color_scheme-1][i]; 
   }
-  
   #ifdef PBL_COLOR
-    window_set_background_color(s_main_window,(GColor)s_chevron_color_palette[NUM_PALETTE_COLORS-1]);
-  #endif
-  
+    window_set_background_color(s_main_window,(GColor)s_chevron_color_palette[NUM_PALETTE_COLORS-1]);  
+  #endif 
 }
 
 
@@ -742,9 +737,11 @@ static void chevron_layer_update_proc(Layer *this_layer, GContext *ctx){
     if (!gcolor_equal((GColor)s_chevron_color_palette[i],GColorClear)){
       graphics_context_set_fill_color(ctx, (GColor)s_chevron_color_palette[i]);
       
-      #ifdef PBL_ROUND
-        gpath_move_to(s_chevron_path, GPoint(-110,29*(i-1)-70));
-        gpath_draw_filled(ctx, s_chevron_path);
+      #ifdef PBL_ROUND 
+       if (i < NUM_PALETTE_COLORS - 1){
+         gpath_move_to(s_chevron_path, GPoint(-110,29*(i-1)-70));
+         gpath_draw_filled(ctx, s_chevron_path);
+       }
       #else
       
         #ifdef PBL_COLOR
@@ -762,12 +759,9 @@ static void chevron_layer_update_proc(Layer *this_layer, GContext *ctx){
           gpath_draw_filled(ctx, s_chevron_path);
         }
       
-      
         #endif
       
-      
       #endif    
-      
       
     }
   }
@@ -778,21 +772,7 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   
   Tuple *slant_dir_num_t = dict_find(iter, KEY_SLANT_DIR_NUM);
   Tuple *bg_image_t = dict_find(iter, KEY_BG_IMAGE);
-  //Tuple *background_color_t = dict_find(iter, KEY_BG_COLOR);
-/*
-  if (background_color_t) {
-    int background_color = background_color_t->value->int32;
-
-    persist_write_int(KEY_BG_COLOR, background_color);
-
-    // set the background color for color watches only
-    #ifdef PBL_COLOR
-    //set_background_color(background_color);
-    set_color_scheme(background_color);
-    #endif
-  }
-  */
-  
+ 
   int old_slant_direction = slant_direction;
 
   //set the slant_direction based on input from config page
@@ -839,39 +819,7 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     
   //APP_LOG(APP_LOG_LEVEL_DEBUG,"new_bg_image_selection: %d", (int)new_bg_image_selection);
   //APP_LOG(APP_LOG_LEVEL_DEBUG,"bg_image_selection value stored in persistent storage: %d", (int)persist_read_int(KEY_BG_IMAGE));
-  
-  /*
-  
-  if(bg_image_selection != new_bg_image_selection){ // don't do anything if the bg selection didn't change.
     
-    bg_image_selection = new_bg_image_selection;
-        
-    // reset the gbitmap value and redraw the layer
-    gbitmap_destroy(s_camo_bitmap);
-    switch (bg_image_selection){
-      case 1: s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_BG_IMAGE); break;
-      case 2: s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_RED); break;
-      case 3: s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_BLUE); break;
-      case 4: s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_PSYCH_CAMO); break;
-      default: s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_BG_IMAGE); break;
-    }
-      
-    bitmap_layer_set_bitmap(s_camo_bg_layer, s_camo_bitmap);
-    layer_mark_dirty(bitmap_layer_get_layer(s_camo_bg_layer));
-    
-  }
-  
-  //APP_LOG(APP_LOG_LEVEL_DEBUG,"inbox message recd. - set slant direction to %d", slant_direction);
-  //APP_LOG(APP_LOG_LEVEL_DEBUG,"inbox message recd. - slant_direction_t->value->int8 %d", slant_direction_t->value->int8);
-  //APP_LOG(APP_LOG_LEVEL_DEBUG,"inbox message recd. - set slant dir num tuple value: %s", slant_dir_num_t->value->cstring);
-  //APP_LOG(APP_LOG_LEVEL_DEBUG,"inbox message recd. - bg image tuple value: %s", bg_image_t->value->cstring);
-  
-  */
-  
-  //persist_write_int(KEY_SLANT_DIR_NUM, (int)slant_dir_num_t->value->int32);
-  //persist_write_int(KEY_BG_IMAGE, bg_image_selection);
-
-  
 }
 
 static void main_window_load(Window *window){
@@ -900,40 +848,12 @@ static void main_window_load(Window *window){
     bg_image_selection = 1;
   }  // default to 1 if no persistent storage exists yet
   
-  //#ifdef PBL_COLOR
-  set_color_palette(bg_image_selection);
-  //#else
-  // statements for BW app
-  //#endif
-/*  
-  switch (bg_image_selection){
-    case 1: s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_BG_IMAGE); break;
-    case 2: s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_RED); break;
-    case 3: s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_BLUE); break;
-    case 4: s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_PSYCH_CAMO); break;
-    default: s_camo_bitmap = gbitmap_create_with_resource(RESOURCE_ID_CAMO_BG_IMAGE); break;
-  }
-  */
+  
   // Create Layers
   
   Layer *window_layer = window_get_root_layer(window);
   GRect window_bounds = layer_get_bounds(window_layer);
-  /*
-  s_camo_bg_layer = bitmap_layer_create(window_bounds);
-  bitmap_layer_set_bitmap(s_camo_bg_layer, s_camo_bitmap);
-  layer_add_child(window_layer, bitmap_layer_get_layer(s_camo_bg_layer));
-  
-  #ifdef PBL_COLOR
-  bitmap_layer_set_compositing_mode(s_camo_bg_layer, GCompOpSet);
-  if (persist_read_int(KEY_BG_COLOR)) {
-    int background_color = persist_read_int(KEY_BG_COLOR);
-    set_background_color(background_color);
-  } else {
-    set_background_color(0);
-  }
-  #endif
-  */
-  
+   
   // fill layer (BW only)
   #ifdef PBL_BW
   s_fill_bitmap = gbitmap_create_with_resource(RESOURCE_ID_PCT_50_FILL);
@@ -969,8 +889,9 @@ static void main_window_load(Window *window){
   //layer_add_child(s_canvas_layer, s_box4_layer);
   layer_add_child(window_layer, s_box4_layer);
   
-  
   window_set_background_color(s_main_window, GColorBlack);
+  
+  set_color_palette(bg_image_selection); // moved this to after the window layer is created!
   
   layer_set_update_proc(s_canvas_layer, canvas_update_proc);
   
