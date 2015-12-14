@@ -713,16 +713,21 @@ static void set_color_palette(int color_scheme){
     s_chevron_color_palette[i] = PALETTES[color_scheme-1][i];
     
   }
+  
+  #ifdef PBL_COLOR
+    window_set_background_color(s_main_window,(GColor)s_chevron_color_palette[NUM_PALETTE_COLORS-1]);
+  #endif
+  
 }
 
 
 // chevron
 static void chevron_layer_update_proc(Layer *this_layer, GContext *ctx){
-  
+  /* // moved to above function: set_color_palette, so that this call is only made once per palette change
   #ifdef PBL_COLOR
     window_set_background_color(s_main_window,(GColor)s_chevron_color_palette[NUM_PALETTE_COLORS-1]);
   #endif
-
+  */
   
   for (int i = 0; i < NUM_PALETTE_COLORS; i++){
     /*
