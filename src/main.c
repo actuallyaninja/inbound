@@ -718,13 +718,11 @@ static void set_color_palette(int color_scheme){
 
 // chevron
 static void chevron_layer_update_proc(Layer *this_layer, GContext *ctx){
-  /*
+  
   #ifdef PBL_COLOR
-  //does anything need to go here?
-  #else
-  GColor palette[NUM_PALETTE_COLORS] = {GColorWhite,GColorBlack,GColorBlack,GColorBlack,GColorBlack,GColorBlack,GColorWhite};
+    window_set_background_color(s_main_window,(GColor)s_chevron_color_palette[NUM_PALETTE_COLORS-1]);
   #endif
-  */
+
   
   for (int i = 0; i < NUM_PALETTE_COLORS; i++){
     /*
@@ -740,21 +738,32 @@ static void chevron_layer_update_proc(Layer *this_layer, GContext *ctx){
       graphics_context_set_fill_color(ctx, (GColor)s_chevron_color_palette[i]);
       
       #ifdef PBL_ROUND
-      gpath_move_to(s_chevron_path, GPoint(-110,29*(i-1)-70));
-      gpath_draw_filled(ctx, s_chevron_path);
-      #else
-      gpath_move_to(s_chevron_path, GPoint(-128,29*(i-1)-73));
-      gpath_draw_filled(ctx, s_chevron_path);
-      if(i == (NUM_PALETTE_COLORS - 1)){
-        // draw
-        gpath_move_to(s_chevron_path, GPoint(-128,29*(i)-73));
+        gpath_move_to(s_chevron_path, GPoint(-110,29*(i-1)-70));
         gpath_draw_filled(ctx, s_chevron_path);
-      }
+      #else
       
-      //gpath_move_to(s_chevron_path, GPoint(-128,29*(i-1)-75));  // orig
+        #ifdef PBL_COLOR
+          if (i < NUM_PALETTE_COLORS - 1){
+            gpath_move_to(s_chevron_path, GPoint(-128,29*(i-1)-73));
+            gpath_draw_filled(ctx, s_chevron_path);
+          }
+          
+        #else
+        gpath_move_to(s_chevron_path, GPoint(-128,29*(i-1)-73));
+        gpath_draw_filled(ctx, s_chevron_path);
+        if(i == (NUM_PALETTE_COLORS - 1)){
+          // draw
+          gpath_move_to(s_chevron_path, GPoint(-128,29*(i)-73));
+          gpath_draw_filled(ctx, s_chevron_path);
+        }
+      
+      
+        #endif
+      
+      
       #endif    
       
-      //gpath_draw_filled(ctx, s_chevron_path);  // orig
+      
     }
   }
 
