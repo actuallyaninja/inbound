@@ -3,7 +3,7 @@
 #include <pebble.h>
 
 #define NUM_PALETTE_COLORS 7
-#define NUM_PALETTES 7
+#define NUM_PALETTES 8
 #ifdef PBL_ROUND
 #define SCREEN_WIDTH 180
 #define SCREEN_HEIGHT 180
@@ -23,13 +23,13 @@ static const GPathInfo CHEVRON = {
 
 #ifdef PBL_COLOR
 
-static const uint8_t PALETTES[NUM_PALETTES][NUM_PALETTE_COLORS] = {
+static uint8_t PALETTES[NUM_PALETTES][NUM_PALETTE_COLORS] = {
   {GColorWhiteARGB8,GColorRedARGB8,GColorBlueARGB8,GColorBlueARGB8,
                                       GColorBlueARGB8,GColorRedARGB8,GColorWhiteARGB8},
   {GColorRichBrilliantLavenderARGB8,GColorBrilliantRoseARGB8,GColorRedARGB8,GColorPurpleARGB8,
-                                      GColorBlueARGB8,GColorVividCeruleanARGB8,GColorCelesteARGB8},
+                                      GColorCobaltBlueARGB8,GColorVividCeruleanARGB8,GColorCelesteARGB8},
   {GColorIcterineARGB8,GColorYellowARGB8,GColorChromeYellowARGB8,GColorOrangeARGB8,
-                                      GColorRedARGB8,GColorDarkCandyAppleRedARGB8,GColorImperialPurpleARGB8},
+                                      GColorRedARGB8,GColorDarkCandyAppleRedARGB8,GColorBulgarianRoseARGB8},
   {GColorBrassARGB8,GColorLimerickARGB8,GColorWindsorTanARGB8,GColorArmyGreenARGB8,
                                       GColorDarkGreenARGB8,GColorJaegerGreenARGB8,GColorMayGreenARGB8},
   {GColorBulgarianRoseARGB8,GColorDarkCandyAppleRedARGB8,GColorOrangeARGB8,GColorChromeYellowARGB8,
@@ -37,10 +37,23 @@ static const uint8_t PALETTES[NUM_PALETTES][NUM_PALETTE_COLORS] = {
   {GColorDarkGreenARGB8,GColorJaegerGreenARGB8,GColorOrangeARGB8,GColorChromeYellowARGB8,
                                       GColorVividVioletARGB8,GColorDarkCandyAppleRedARGB8,GColorImperialPurpleARGB8},
   {GColorWhiteARGB8,GColorLightGrayARGB8,GColorDarkGrayARGB8,GColorBlackARGB8,
-                                      GColorDarkGrayARGB8,GColorLightGrayARGB8,GColorWhiteARGB8}
-  
+                                      GColorDarkGrayARGB8,GColorLightGrayARGB8,GColorWhiteARGB8},
+  {GColorRedARGB8,GColorDarkGrayARGB8,GColorBlackARGB8,GColorRedARGB8,
+                                      GColorBlackARGB8,GColorDarkGrayARGB8,GColorRedARGB8}
 };
+
 #else
+int PALETTES[NUM_PALETTES][NUM_PALETTE_COLORS] = {
+{0,-1,0,0,0,-1,0},
+  {1,-1,0,0,0,-1,1},
+  {0,-1,-1,0,-1,-1,0},
+  {1,0,-1,-1,-1,0,1},
+  {0,-1,-1,-1,-1,-1,0},
+  {1,-1,0,-1,0,-1,1},
+  {-1,-1,-1,0,-1,-1,-1},
+  {-1,0,-1,0,-1,0,-1}
+};
+/*
 GColor PALETTES[NUM_PALETTES][NUM_PALETTE_COLORS] = {
   {GColorBlack,GColorClear,GColorBlack,GColorBlack,
                                       GColorBlack,GColorClear,GColorBlack},
@@ -55,6 +68,9 @@ GColor PALETTES[NUM_PALETTES][NUM_PALETTE_COLORS] = {
   {GColorWhite,GColorClear,GColorBlack,GColorClear,
                                       GColorBlack,GColorClear,GColorWhite},
   {GColorClear,GColorClear,GColorClear,GColorBlack,
-                                      GColorClear,GColorClear,GColorClear}
+                                      GColorClear,GColorClear,GColorClear},
+  {GColorClear,GColorBlack,GColorClear,GColorBlack,
+                                      GColorClear,GColorBlack,GColorClear}
 };
+*/
 #endif

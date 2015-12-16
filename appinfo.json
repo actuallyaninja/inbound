@@ -12,30 +12,6 @@
     "resources": {
         "media": [
             {
-                "file": "images/PCT_25_FILL",
-                "name": "PCT_25_FILL",
-                "targetPlatforms": [
-                    "aplite"
-                ],
-                "type": "png"
-            },
-            {
-                "file": "images/PCT_75_FILL",
-                "name": "PCT_75_FILL",
-                "targetPlatforms": [
-                    "aplite"
-                ],
-                "type": "png"
-            },
-            {
-                "file": "images/PCT_50_FILL",
-                "name": "PCT_50_FILL",
-                "targetPlatforms": [
-                    "aplite"
-                ],
-                "type": "png"
-            },
-            {
                 "file": "images/inbound-screenshot",
                 "menuIcon": true,
                 "name": "INBOUND_SCREENSHOT",
@@ -44,7 +20,31 @@
                     "basalt",
                     "chalk"
                 ],
-                "type": "png"
+                "type": "bitmap"
+            },
+            {
+                "file": "images/PCT_25_FILL",
+                "name": "PCT_25_FILL",
+                "targetPlatforms": [
+                    "aplite"
+                ],
+                "type": "bitmap"
+            },
+            {
+                "file": "images/PCT_75_FILL",
+                "name": "PCT_75_FILL",
+                "targetPlatforms": [
+                    "aplite"
+                ],
+                "type": "bitmap"
+            },
+            {
+                "file": "images/PCT_50_FILL",
+                "name": "PCT_50_FILL",
+                "targetPlatforms": [
+                    "aplite"
+                ],
+                "type": "bitmap"
             }
         ]
     },

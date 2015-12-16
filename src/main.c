@@ -35,9 +35,11 @@ static Layer *s_box4_layer;
 static GBitmap *s_fill_bitmap;
 static BitmapLayer *s_fill_bitmap_layer;
 
-//#ifdef PBL_COLOR
+#ifdef PBL_PLATFORM_APLITE
+static GColor s_chevron_color_palette[NUM_PALETTE_COLORS];
+#else
 static uint8_t s_chevron_color_palette[NUM_PALETTE_COLORS] = {0};
-//#endif
+#endif
 
 int8_t currentHour, currentMinute, currentMonthDay;
 int8_t previousHour, previousMinute;
@@ -436,9 +438,10 @@ static void update_time() {
   currentMinute = tick_time->tm_min;
   
   //APP_LOG(APP_LOG_LEVEL_DEBUG,"Time updated from %d:%d to %d:%d", previousHour, previousMinute, currentHour, currentMinute);
+  
   /*
   //for testing
-  currentHour = 1;
+  currentHour = 12;
   currentMinute = 00;
   */
   
@@ -462,7 +465,7 @@ static void update_time() {
   currentMonthDay = tick_time->tm_mday;
   
   //testing:
-  //currentMonthDay = 13;
+  //currentMonthDay = 31;
   
   if(currentMonthDay > 9){
     strftime(month_and_weekday_buffer,sizeof(month_and_weekday_buffer),"%b    %n%A",tick_time);
@@ -708,7 +711,16 @@ static void set_color_palette(int color_scheme){
   if (color_scheme > NUM_PALETTES){color_scheme = 1;} //default is palette #1
   
   for (int i = 0; i < NUM_PALETTE_COLORS; i++){
+    #ifdef PBL_COLOR
     s_chevron_color_palette[i] = PALETTES[color_scheme-1][i]; 
+    #else
+    switch (PALETTES[color_scheme-1][i]){
+      case -1: s_chevron_color_palette[i] = GColorClear; break;
+      case 0: s_chevron_color_palette[i] = GColorBlack; break;
+      case 1: s_chevron_color_palette[i] = GColorWhite; break;
+      default: s_chevron_color_palette[i] = GColorBlack; break;
+    }
+    #endif
   }
   #ifdef PBL_COLOR
     window_set_background_color(s_main_window,(GColor)s_chevron_color_palette[NUM_PALETTE_COLORS-1]);  
@@ -734,8 +746,10 @@ static void chevron_layer_update_proc(Layer *this_layer, GContext *ctx){
     #endif
     */
     
+    
     if (!gcolor_equal((GColor)s_chevron_color_palette[i],GColorClear)){
-      graphics_context_set_fill_color(ctx, (GColor)s_chevron_color_palette[i]);
+      
+    graphics_context_set_fill_color(ctx, (GColor)s_chevron_color_palette[i]);
       
       #ifdef PBL_ROUND 
        if (i < NUM_PALETTE_COLORS - 1){
@@ -764,8 +778,9 @@ static void chevron_layer_update_proc(Layer *this_layer, GContext *ctx){
       #endif    
       
     }
+    
   }
-
+     
 }
 
 static void inbox_received_handler(DictionaryIterator *iter, void *context) {
