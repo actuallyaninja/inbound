@@ -93,7 +93,6 @@ static PropertyAnimation *s_pull1_animation;
 static PropertyAnimation *s_pull2_animation;
 static PropertyAnimation *s_pull3_animation;
 static PropertyAnimation *s_pull4_animation;
-//static PropertyAnimation *s_middle_layer_animation;
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed);
 static void set_day_digit1_pathinfo_from_existing(GPathInfo existing1, int target_width, int target_height);
@@ -314,11 +313,6 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
       animation_set_duration((Animation*)s_dropin1_animation, anim_duration);
       animation_set_delay((Animation*)s_dropin1_animation, initial_delay);    
       animation_set_curve((Animation*)s_dropin1_animation, AnimationCurveEaseOut);
-   /*   animation_set_handlers((Animation*)s_dropin1_animation, (AnimationHandlers) {
-        .started = dropin1_started_handler,
-        .stopped = dropin_stopped_handler
-      }, NULL);
-    */
       animation_schedule((Animation*)s_dropin1_animation);
       break;
     case 1:
@@ -332,11 +326,6 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
         animation_set_duration((Animation*)s_dropin2_animation, anim_duration);
         animation_set_delay((Animation*)s_dropin2_animation, initial_delay);
         animation_set_curve((Animation*)s_dropin2_animation, AnimationCurveEaseOut);
-   /*     animation_set_handlers((Animation*)s_dropin2_animation, (AnimationHandlers) {
-          .started = dropin2_started_handler,
-          .stopped = dropin_stopped_handler      
-        }, NULL);
-    */
         animation_schedule((Animation*)s_dropin2_animation);
         break;
       case 2:
@@ -350,11 +339,6 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
         animation_set_duration((Animation*)s_dropin3_animation, anim_duration);
         animation_set_delay((Animation*)s_dropin3_animation, initial_delay);
         animation_set_curve((Animation*)s_dropin3_animation, AnimationCurveEaseOut);
-    /*    animation_set_handlers((Animation*)s_dropin3_animation, (AnimationHandlers) {
-          .started = dropin3_started_handler,
-          .stopped = dropin_stopped_handler
-        }, NULL);
-    */
         animation_schedule((Animation*)s_dropin3_animation);
         break;
       case 3:
@@ -368,12 +352,7 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
         s_dropin4_animation = property_animation_create_layer_frame(s_box4_layer, &start, &finish);
         animation_set_duration((Animation*)s_dropin4_animation, anim_duration);
         animation_set_delay((Animation*)s_dropin4_animation,initial_delay);
-        animation_set_curve((Animation*)s_dropin4_animation, AnimationCurveEaseOut);
-     /*   animation_set_handlers((Animation*)s_dropin4_animation, (AnimationHandlers) {
-          .started = dropin4_started_handler,
-          .stopped = dropin_stopped_handler
-        }, NULL);
-      */
+        animation_set_curve((Animation*)s_dropin4_animation, AnimationCurveEaseOut);  
         animation_schedule((Animation*)s_dropin4_animation);
         break;
       default:
@@ -491,8 +470,6 @@ static void set_day_digit1_pathinfo_from_existing(GPathInfo existing1, int targe
 
 static void set_day_digit2_pathinfo_from_existing(GPathInfo existing2, int target_width, int target_height){
   
-  //float width_scale2 = (float)target_width/(float)STANDARD_DIGIT_WIDTH;
-  //float height_scale2 = (float)target_height/(float)STANDARD_DIGIT_HEIGHT;
   float width_scale2 = (float)target_width/(float)STD_BOXY_DIGIT_WIDTH;
   float height_scale2 = (float)target_height/(float)STD_BOXY_DIGIT_HEIGHT;
   
@@ -541,17 +518,11 @@ static void canvas_update_proc(Layer *this_layer, GContext *ctx) {
   // draw the foreground numbers
   gpath_draw_filled(ctx,s_monthday1_path);
   gpath_draw_filled(ctx,s_monthday2_path);
-
-//  APP_LOG(APP_LOG_LEVEL_INFO,"Heap bytes used | free: %d | %d", (int)heap_bytes_used,(int)heap_bytes_free());
-    
-  //APP_LOG(APP_LOG_LEVEL_DEBUG,"Finishing canvas_update_proc");
-  
+ 
 }
 
 static void push_all_digits(){
   
-  //APP_LOG(APP_LOG_LEVEL_DEBUG,"Push_all_digits pre-execute - Heap bytes used | free: %d | %d", (int)heap_bytes_used,(int)heap_bytes_free());
-    
   // animate the changed digits into place
   if(digits_changed_during_tick[0]){
     pull_digit(0);
@@ -620,7 +591,7 @@ static void box2_update_proc(Layer *this_layer, GContext *ctx) {
   gpath_move_to(s_number2_path, GPoint(BOX_DRAW_X_OFFSET,BOX_DRAW_Y_OFFSET));
 
   gpath_draw_filled(ctx, s_number2_path); 
-  //APP_LOG(APP_LOG_LEVEL_DEBUG,"finishing box2_update_proc");
+  
   
 }
 
@@ -628,12 +599,10 @@ static void box3_update_proc(Layer *this_layer, GContext *ctx) {
   
   gpath_rotate_to(s_number3_path, ROTATION_ANGLE*slant_direction);
   
-  // drop shadows for color pebbles
-  //#ifdef PBL_COLOR
-    graphics_context_set_fill_color(ctx, shadow_color);
-    gpath_move_to(s_number3_path, GPoint(BOX_DRAW_X_OFFSET + DROP_SHADOW_X_OFFSET,DROP_SHADOW_Y_OFFSET));
-    gpath_draw_filled(ctx, s_number3_path);
-  //#endif
+  // drop shadows
+  graphics_context_set_fill_color(ctx, shadow_color);
+  gpath_move_to(s_number3_path, GPoint(BOX_DRAW_X_OFFSET + DROP_SHADOW_X_OFFSET,DROP_SHADOW_Y_OFFSET));
+  gpath_draw_filled(ctx, s_number3_path);
     
   graphics_context_set_fill_color(ctx, number_color);
   gpath_move_to(s_number3_path, GPoint(BOX_DRAW_X_OFFSET,BOX_DRAW_Y_OFFSET));
@@ -646,12 +615,10 @@ static void box4_update_proc(Layer *this_layer, GContext *ctx) {
   
   gpath_rotate_to(s_number4_path, ROTATION_ANGLE*slant_direction);
   
-  // drop shadows for color pebbles
-  //#ifdef PBL_COLOR
-    graphics_context_set_fill_color(ctx, shadow_color);
-    gpath_move_to(s_number4_path, GPoint(BOX_DRAW_X_OFFSET + DROP_SHADOW_X_OFFSET,DROP_SHADOW_Y_OFFSET));
-    gpath_draw_filled(ctx, s_number4_path);
-  //#endif
+  // drop shadows
+  graphics_context_set_fill_color(ctx, shadow_color);
+  gpath_move_to(s_number4_path, GPoint(BOX_DRAW_X_OFFSET + DROP_SHADOW_X_OFFSET,DROP_SHADOW_Y_OFFSET));
+  gpath_draw_filled(ctx, s_number4_path);
   
   graphics_context_set_fill_color(ctx, number_color);
   gpath_move_to(s_number4_path, GPoint(BOX_DRAW_X_OFFSET,BOX_DRAW_Y_OFFSET));
@@ -788,7 +755,7 @@ static void main_window_load(Window *window){
     slant_direction = -1;
   }
   
-  //set backgroud image choice from persistent storage
+  //set backgroud choice from persistent storage
   if(persist_exists(KEY_BG_IMAGE)){
     bg_image_selection = persist_read_int(KEY_BG_IMAGE);
   } else {
@@ -821,19 +788,15 @@ static void main_window_load(Window *window){
   GRect start_number_box = GRect(72,-100,55,68);
  
   s_box1_layer = layer_create(start_number_box); 
-  //layer_add_child(s_canvas_layer, s_box1_layer);
   layer_add_child(window_layer, s_box1_layer);
   
   s_box2_layer = layer_create(start_number_box); 
-  //layer_add_child(s_canvas_layer, s_box2_layer);
   layer_add_child(window_layer, s_box2_layer);
   
   s_box3_layer = layer_create(start_number_box); 
-  //layer_add_child(s_canvas_layer, s_box3_layer);
   layer_add_child(window_layer, s_box3_layer);
   
   s_box4_layer = layer_create(start_number_box);
-  //layer_add_child(s_canvas_layer, s_box4_layer);
   layer_add_child(window_layer, s_box4_layer);
   
   window_set_background_color(s_main_window, GColorBlack);
@@ -848,15 +811,11 @@ static void main_window_load(Window *window){
   layer_set_update_proc(s_box4_layer, box4_update_proc);
   
   layer_set_update_proc(s_chevron_layer, chevron_layer_update_proc);
-  
-  //s_time_middle_layer = layer_create(GRect(-5,60,5,60));
-  //layer_set_update_proc(s_time_middle_layer, middle_layer_update_proc);
-  //layer_add_child(window_layer, s_time_middle_layer);
-  
+   
 }
 
 static void main_window_unload(Window *window){
-  APP_LOG(APP_LOG_LEVEL_DEBUG,"starting main_window_unload function.");
+  
   layer_destroy(s_box1_layer);
   layer_destroy(s_box2_layer);
   layer_destroy(s_box3_layer);
@@ -867,7 +826,6 @@ static void main_window_unload(Window *window){
   
   layer_destroy(s_canvas_layer);
   layer_destroy(s_chevron_layer);
-  APP_LOG(APP_LOG_LEVEL_DEBUG,"finishing main_window_unload function."); 
   
 }
    
@@ -912,7 +870,6 @@ static void init(void){     // set up layers/windows
   }
   
   app_message_register_inbox_received(inbox_received_handler);
-  //app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_minimum());
   app_message_open(256, 256);
   
 }
@@ -937,9 +894,31 @@ static void deinit(void){   //destroy layers/windows, etc.
   
   tick_timer_service_unsubscribe();
     
-  //animation_unschedule_all();  // Stop any animation in progress
-  
-  
+  if(animation_is_scheduled((Animation*)s_dropin4_animation)){
+    animation_unschedule((Animation*)s_dropin4_animation);
+  }
+  if(animation_is_scheduled((Animation*)s_dropin3_animation)){
+    animation_unschedule((Animation*)s_dropin3_animation);
+  }
+  if(animation_is_scheduled((Animation*)s_dropin2_animation)){
+    animation_unschedule((Animation*)s_dropin2_animation);
+  }
+  if(animation_is_scheduled((Animation*)s_dropin1_animation)){
+    animation_unschedule((Animation*)s_dropin1_animation);
+  }
+  if(animation_is_scheduled((Animation*)s_pull4_animation)){
+    animation_unschedule((Animation*)s_pull4_animation);
+  }
+  if(animation_is_scheduled((Animation*)s_pull3_animation)){
+    animation_unschedule((Animation*)s_pull3_animation);
+  }
+  if(animation_is_scheduled((Animation*)s_pull2_animation)){
+    animation_unschedule((Animation*)s_pull2_animation);
+  }
+  if(animation_is_scheduled((Animation*)s_pull1_animation)){
+    animation_unschedule((Animation*)s_pull1_animation);
+  }
+
 }
 
 int main(void) {
