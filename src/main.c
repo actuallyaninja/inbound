@@ -211,6 +211,7 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
     {
       if(currentHour != 0 && currentHour < 20){ // if hour from 10 thru 19, shift numbers 
                               //left slightly to correct for width of number 1
+        /*
         if(x<2){
           x_offset = x_offset*x - 5;
           y_offset = y_offset*x + 25;
@@ -218,7 +219,16 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
           x_offset = x_offset*x + 13 - 5;
           y_offset = y_offset*x + 25 + 4;
         }
+        */
+        
+        GPoint four_dig_w_one = {0,0};
+        four_dig_w_one = number_point_setup(GPoint(-5,26), NUMBER_SPACING, CENTER_SPACE_WIDTH, x, M_PI / 7);
+        x_offset = four_dig_w_one.x;
+        y_offset = four_dig_w_one.y;
+                       
       } else {  // hours 20 to 23
+        
+        /*
         if(x<2){
           x_offset = x_offset*x;
           y_offset = y_offset*x + 25;
@@ -226,6 +236,7 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
           x_offset = x_offset*x + 13;
           y_offset = y_offset*x + 25 + 4;
         }
+        */
         
         //new method for calculating point positions:
         GPoint test = {0,0};
@@ -235,6 +246,7 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
         //APP_LOG(APP_LOG_LEVEL_DEBUG,"Finished number point setup for digit %d", x);
       }
     } else{                                  // for 3 digits
+      /*
       if(x<2){
         x_offset = x_offset*x - 13;
         y_offset = y_offset*x + 25 - 6;
@@ -242,6 +254,11 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
         x_offset = x_offset*x;
         y_offset = y_offset*x + 25 + 4 - 6;
       }
+      */
+      GPoint three_dig = {0,0};
+      three_dig = number_point_setup(GPoint(-13,19), NUMBER_SPACING, CENTER_SPACE_WIDTH, x, M_PI / 7);
+      x_offset = three_dig.x;
+      y_offset = three_dig.y;
     }
     
     #ifdef PBL_ROUND
@@ -889,36 +906,9 @@ static void deinit(void){   //destroy layers/windows, etc.
   }
   
   clean_up_number_gpaths();           // destroy all gpaths for numbers
-  
   window_destroy(s_main_window);  // Destroy main Window
-  
   tick_timer_service_unsubscribe();
-    
-  if(animation_is_scheduled((Animation*)s_dropin4_animation)){
-    animation_unschedule((Animation*)s_dropin4_animation);
-  }
-  if(animation_is_scheduled((Animation*)s_dropin3_animation)){
-    animation_unschedule((Animation*)s_dropin3_animation);
-  }
-  if(animation_is_scheduled((Animation*)s_dropin2_animation)){
-    animation_unschedule((Animation*)s_dropin2_animation);
-  }
-  if(animation_is_scheduled((Animation*)s_dropin1_animation)){
-    animation_unschedule((Animation*)s_dropin1_animation);
-  }
-  if(animation_is_scheduled((Animation*)s_pull4_animation)){
-    animation_unschedule((Animation*)s_pull4_animation);
-  }
-  if(animation_is_scheduled((Animation*)s_pull3_animation)){
-    animation_unschedule((Animation*)s_pull3_animation);
-  }
-  if(animation_is_scheduled((Animation*)s_pull2_animation)){
-    animation_unschedule((Animation*)s_pull2_animation);
-  }
-  if(animation_is_scheduled((Animation*)s_pull1_animation)){
-    animation_unschedule((Animation*)s_pull1_animation);
-  }
-
+  
 }
 
 int main(void) {
