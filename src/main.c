@@ -210,33 +210,13 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
     if(currentHour > 9 || currentHour == 0)  // for 4 digits
     {
       if(currentHour != 0 && currentHour < 20){ // if hour from 10 thru 19, shift numbers 
-                              //left slightly to correct for width of number 1
-        /*
-        if(x<2){
-          x_offset = x_offset*x - 5;
-          y_offset = y_offset*x + 25;
-        } else{
-          x_offset = x_offset*x + 13 - 5;
-          y_offset = y_offset*x + 25 + 4;
-        }
-        */
-        
+                              //left slightly to correct for width of number 1       
         GPoint four_dig_w_one = {0,0};
         four_dig_w_one = number_point_setup(GPoint(-5,26), NUMBER_SPACING, CENTER_SPACE_WIDTH, x, M_PI / 7);
         x_offset = four_dig_w_one.x;
         y_offset = four_dig_w_one.y;
                        
       } else {  // hours 20 to 23
-        
-        /*
-        if(x<2){
-          x_offset = x_offset*x;
-          y_offset = y_offset*x + 25;
-        } else{
-          x_offset = x_offset*x + 13;
-          y_offset = y_offset*x + 25 + 4;
-        }
-        */
         
         //new method for calculating point positions:
         GPoint test = {0,0};
@@ -246,15 +226,7 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
         //APP_LOG(APP_LOG_LEVEL_DEBUG,"Finished number point setup for digit %d", x);
       }
     } else{                                  // for 3 digits
-      /*
-      if(x<2){
-        x_offset = x_offset*x - 13;
-        y_offset = y_offset*x + 25 - 6;
-      } else{
-        x_offset = x_offset*x;
-        y_offset = y_offset*x + 25 + 4 - 6;
-      }
-      */
+      
       GPoint three_dig = {0,0};
       three_dig = number_point_setup(GPoint(-13,19), NUMBER_SPACING, CENTER_SPACE_WIDTH, x, M_PI / 7);
       x_offset = three_dig.x;
@@ -273,6 +245,13 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
       if(currentHour != 0 && currentHour < 20){ // if hour is from 10 thru 19, shift numbers 
                               //left slightly to correct for width of number 1
         
+        GPoint four_dig_w_one_left = {0,0};
+        four_dig_w_one_left = number_point_setup(GPoint(-2,72), NUMBER_SPACING, CENTER_SPACE_WIDTH, x, -1*M_PI / 7);
+        x_offset = four_dig_w_one_left.x;
+        y_offset = four_dig_w_one_left.y;
+        //APP_LOG(APP_LOG_LEVEL_DEBUG,"four_dig_w_one_left x = %d, y = %d",x_offset,y_offset);
+        
+        /*
         if(x<2){                              // hours
           x_offset = x_offset*x + 3 - 5;
           y_offset = (slant_direction)*y_offset*x + 72;
@@ -280,16 +259,25 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
           x_offset = x_offset*x + 13 + 3 - 5;
           y_offset = (slant_direction)*y_offset*x + 72 - 4;
         }
+        */
+        
       } else {  // 4-digits: 20:00 through 23:59
+        /*
         if(x<2){                             // hours
           x_offset = x_offset*x + 3;
           y_offset = (slant_direction)*y_offset*x + 72;
         } else{                              // minutes
           x_offset = x_offset*x + 13 + 3;
           y_offset = (slant_direction)*y_offset*x + 72 - 4;
-        }
+        }  */
+        GPoint four_dig_left = {0,0};
+        four_dig_left = number_point_setup(GPoint(1,72), NUMBER_SPACING, CENTER_SPACE_WIDTH, x, -1*M_PI / 7);
+        x_offset = four_dig_left.x;
+        y_offset = four_dig_left.y;
+        
       }
     } else{       // for 3 digits
+      /*
       if(x<2){                               // hours
         x_offset = x_offset*x - 13;
         y_offset = (slant_direction)*y_offset*x + 72 + 6;
@@ -297,6 +285,11 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
         x_offset = x_offset*x;
         y_offset = (slant_direction)*y_offset*x + 72 - 4 + 6;
       }
+      */
+      GPoint three_dig_left = {0,0};
+        three_dig_left = number_point_setup(GPoint(-11,78), NUMBER_SPACING, CENTER_SPACE_WIDTH, x, -1*M_PI / 7);
+        x_offset = three_dig_left.x;
+        y_offset = three_dig_left.y;
     }
     
     #ifdef PBL_ROUND
@@ -414,7 +407,7 @@ static void update_time() {
   
   /*
   //for testing
-  currentHour = 12;
+  currentHour = 8;
   currentMinute = 00;
   */
   
@@ -729,6 +722,9 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   persist_write_int(KEY_SLANT_DIR_NUM, const_slant_direction_num);
   
     // reset digit layout if the direction is different after config data is returned
+  
+  update_time(); // added 12/27----
+  
   if (slant_direction != old_slant_direction){
     digits_changed_during_tick[0] = true;
     digits_changed_during_tick[1] = true;
