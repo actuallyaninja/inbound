@@ -201,103 +201,65 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
   
   int anim_duration = 600;
   int initial_delay = 0;
-//  int delay_overlap = 60;
   
   // x and y spacing
-  
+  int a = 0;
+  int b = 0;
+  GPoint orig = {0,0};
+  //APP_LOG(APP_LOG_LEVEL_DEBUG,"before conditional tree logic: slant_direction = %d", slant_direction);
+  //APP_LOG(APP_LOG_LEVEL_DEBUG,"x = %d",x);
   // for original slant:
   if(slant_direction == 1){
+    //APP_LOG(APP_LOG_LEVEL_DEBUG,"starting slant_direction == 1 conditional path.");
+    
     if(currentHour > 9 || currentHour == 0)  // for 4 digits
     {
       if(currentHour != 0 && currentHour < 20){ // if hour from 10 thru 19, shift numbers 
                               //left slightly to correct for width of number 1       
-        GPoint four_dig_w_one = {0,0};
-        four_dig_w_one = number_point_setup(GPoint(-5,26), NUMBER_SPACING, CENTER_SPACE_WIDTH, x, M_PI / 7);
-        x_offset = four_dig_w_one.x;
-        y_offset = four_dig_w_one.y;
-                       
-      } else {  // hours 20 to 23
-        
-        //new method for calculating point positions:
-        GPoint test = {0,0};
-        test = number_point_setup(GPoint(0,26), NUMBER_SPACING, CENTER_SPACE_WIDTH, x, M_PI / 7); // this configuration worked for both round and rect :)
-        x_offset = test.x;
-        y_offset = test.y;
-        //APP_LOG(APP_LOG_LEVEL_DEBUG,"Finished number point setup for digit %d", x);
+        orig = GPoint(-5,26);
+      } else {
+        // hours 20 to 23
+        orig = GPoint(0,26);        
       }
-    } else{                                  // for 3 digits
-      
-      GPoint three_dig = {0,0};
-      three_dig = number_point_setup(GPoint(-13,19), NUMBER_SPACING, CENTER_SPACE_WIDTH, x, M_PI / 7);
-      x_offset = three_dig.x;
-      y_offset = three_dig.y;
+    } else{                   
+      // for 3 digits
+      orig = GPoint(-13,19);
     }
-    
-    #ifdef PBL_ROUND
-      x_offset += 18;
-      y_offset += 6;
-    #endif
+  
   } else {
     /// for opposite slant:
-    
     if(currentHour > 9 || currentHour == 0){  // for 4 digits
- 
       if(currentHour != 0 && currentHour < 20){ // if hour is from 10 thru 19, shift numbers 
                               //left slightly to correct for width of number 1
-        
-        GPoint four_dig_w_one_left = {0,0};
-        four_dig_w_one_left = number_point_setup(GPoint(-2,72), NUMBER_SPACING, CENTER_SPACE_WIDTH, x, -1*M_PI / 7);
-        x_offset = four_dig_w_one_left.x;
-        y_offset = four_dig_w_one_left.y;
-        //APP_LOG(APP_LOG_LEVEL_DEBUG,"four_dig_w_one_left x = %d, y = %d",x_offset,y_offset);
-        
-        /*
-        if(x<2){                              // hours
-          x_offset = x_offset*x + 3 - 5;
-          y_offset = (slant_direction)*y_offset*x + 72;
-        } else{                               // minutes
-          x_offset = x_offset*x + 13 + 3 - 5;
-          y_offset = (slant_direction)*y_offset*x + 72 - 4;
-        }
-        */
-        
-      } else {  // 4-digits: 20:00 through 23:59
-        /*
-        if(x<2){                             // hours
-          x_offset = x_offset*x + 3;
-          y_offset = (slant_direction)*y_offset*x + 72;
-        } else{                              // minutes
-          x_offset = x_offset*x + 13 + 3;
-          y_offset = (slant_direction)*y_offset*x + 72 - 4;
-        }  */
-        GPoint four_dig_left = {0,0};
-        four_dig_left = number_point_setup(GPoint(1,72), NUMBER_SPACING, CENTER_SPACE_WIDTH, x, -1*M_PI / 7);
-        x_offset = four_dig_left.x;
-        y_offset = four_dig_left.y;
-        
+        //a = -2;
+        //b = 72;
+        orig = GPoint(-2,72);
+      } else {  
+        // 4-digits: 20:00 through 23:59
+        //a = 1;
+        //b = 72;
+        orig = GPoint(1,72);
       }
-    } else{       // for 3 digits
-      /*
-      if(x<2){                               // hours
-        x_offset = x_offset*x - 13;
-        y_offset = (slant_direction)*y_offset*x + 72 + 6;
-      } else{                                // minutes
-        x_offset = x_offset*x;
-        y_offset = (slant_direction)*y_offset*x + 72 - 4 + 6;
-      }
-      */
-      GPoint three_dig_left = {0,0};
-        three_dig_left = number_point_setup(GPoint(-11,78), NUMBER_SPACING, CENTER_SPACE_WIDTH, x, -1*M_PI / 7);
-        x_offset = three_dig_left.x;
-        y_offset = three_dig_left.y;
+    } else{       
+      // for 3 digits
+      //a = -11;
+      //b = 78;
+      orig = GPoint(-11,78);
     }
     
-    #ifdef PBL_ROUND
-      x_offset += 18;
-      y_offset += 6;
-    #endif
   }
-    
+  GPoint digit_start_point = GPoint(0,0);
+  
+  digit_start_point = number_point_setup(orig, NUMBER_SPACING, CENTER_SPACE_WIDTH, x, (slant_direction)*M_PI / 7);
+
+  x_offset = digit_start_point.x;
+  y_offset = digit_start_point.y;
+
+  #ifdef PBL_ROUND
+  x_offset += 18;
+  y_offset += 6;
+  #endif
+
   //start the shapes off the screen to the bottom left if slanted left, bottom right if slanted right
   if(slant_direction == 1){
     start = GRect(-55, 185, 55, 68);
@@ -716,6 +678,8 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     case 2: slant_direction = -1; break;
     default: slant_direction = -1; break;
   }
+  
+  APP_LOG(APP_LOG_LEVEL_DEBUG,"slant_direction = %d",slant_direction);
   
   const int32_t const_slant_direction_num = (int32_t)slant_direction_num;
   
