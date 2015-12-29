@@ -27,10 +27,6 @@ static Layer *s_box1_layer;
 static Layer *s_box2_layer;
 static Layer *s_box3_layer;
 static Layer *s_box4_layer;
-//static Layer *s_time_middle_layer;
-
-//static GBitmap *s_camo_bitmap;
-//static BitmapLayer *s_camo_bg_layer;
 
 static GBitmap *s_fill_bitmap;
 static BitmapLayer *s_fill_bitmap_layer;
@@ -44,14 +40,15 @@ static uint8_t s_chevron_color_palette[NUM_PALETTE_COLORS] = {0};
 int8_t currentHour, currentMinute, currentMonthDay;
 int8_t previousHour, previousMinute;
 static char month_and_weekday_buffer[50];
-static char abbrv_month[4], day_of_month[3], full_weekday[10];
+//static char abbrv_month[4], day_of_month[3], full_weekday[10];
 
 int slant_direction;  // 1 is slanted down to right, -1 is slanted up to right
+int32_t bg_image_selection;
 
 bool digits_changed_during_tick[4] = {0,0,0,0};
 int8_t anim_delays[4] = {0,0,0,0};
 
-int32_t bg_image_selection;
+
 
 #define ROTATION_ANGLE (TRIG_MAX_ANGLE*0.073)
 
@@ -194,8 +191,10 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
   //APP_LOG(APP_LOG_LEVEL_INFO,"drop digit started. Heap bytes used | free: %d | %d", (int)heap_bytes_used,(int)heap_bytes_free());
   
   GRect start, finish;
-  int x_offset = 26;
-  int y_offset = 13;
+  int x_offset = 0; 
+  //26;
+  int y_offset = 0; 
+  //13;
   
   int x = which_digit; // which_digit should be one of: {0,1,2,3}
   
@@ -203,15 +202,12 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
   int initial_delay = 0;
   
   // x and y spacing
-  int a = 0;
-  int b = 0;
+
   GPoint orig = {0,0};
-  //APP_LOG(APP_LOG_LEVEL_DEBUG,"before conditional tree logic: slant_direction = %d", slant_direction);
-  //APP_LOG(APP_LOG_LEVEL_DEBUG,"x = %d",x);
+
   // for original slant:
   if(slant_direction == 1){
-    //APP_LOG(APP_LOG_LEVEL_DEBUG,"starting slant_direction == 1 conditional path.");
-    
+        
     if(currentHour > 9 || currentHour == 0)  // for 4 digits
     {
       if(currentHour != 0 && currentHour < 20){ // if hour from 10 thru 19, shift numbers 
@@ -231,19 +227,13 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
     if(currentHour > 9 || currentHour == 0){  // for 4 digits
       if(currentHour != 0 && currentHour < 20){ // if hour is from 10 thru 19, shift numbers 
                               //left slightly to correct for width of number 1
-        //a = -2;
-        //b = 72;
         orig = GPoint(-2,72);
       } else {  
         // 4-digits: 20:00 through 23:59
-        //a = 1;
-        //b = 72;
-        orig = GPoint(1,72);
+        orig = GPoint(2,72);
       }
     } else{       
       // for 3 digits
-      //a = -11;
-      //b = 78;
       orig = GPoint(-11,78);
     }
     
@@ -401,9 +391,11 @@ static void update_time() {
     strftime(month_and_weekday_buffer,sizeof(month_and_weekday_buffer),"%b  %n%A",tick_time);
   }
   
+  /*
   strftime(abbrv_month,sizeof(abbrv_month),"%b",tick_time);
   snprintf(day_of_month,sizeof(day_of_month),"%d",currentMonthDay);
   strftime(full_weekday,sizeof(full_weekday),"%A",tick_time);
+  */
   
   //use currentMonthDay to set monthday path values
   set_day_digit1_pathinfo_from_existing(time_digit_info_value((int)(currentMonthDay/10)),22,30);
@@ -543,10 +535,11 @@ static void box1_update_proc(Layer *this_layer, GContext *ctx) {
     
     gpath_draw_filled(ctx, s_number1_path);  
     
-  } else{
-    // handle the case where there are only 3 numbers in the time:
-    // ...do nothing
   }
+  // ELSE -- not needed
+  // in the case where there are only 3 numbers in the time:
+  // ...do nothing
+  
   
 }
 
@@ -602,62 +595,76 @@ static void box4_update_proc(Layer *this_layer, GContext *ctx) {
 
 static void set_color_palette(int color_scheme){
   
-  if (color_scheme > NUM_PALETTES){color_scheme = 1;} //default is palette #1
-  
-  for (int i = 0; i < NUM_PALETTE_COLORS; i++){
+  if(color_scheme == 0){
     #ifdef PBL_COLOR
-    s_chevron_color_palette[i] = PALETTES[color_scheme-1][i]; 
-    #else
-    switch (PALETTES[color_scheme-1][i]){
-      case -1: s_chevron_color_palette[i] = GColorClear; break;
-      case 0: s_chevron_color_palette[i] = GColorBlack; break;
-      case 1: s_chevron_color_palette[i] = GColorWhite; break;
-      default: s_chevron_color_palette[i] = GColorBlack; break;
-    }
+    window_set_background_color(s_main_window,GColorDarkGray);
     #endif
   }
-  #ifdef PBL_COLOR
+  else {  
+    if (color_scheme > NUM_PALETTES){color_scheme = 1;} //default is palette #1
+    
+    for (int i = 0; i < NUM_PALETTE_COLORS; i++){
+      #ifdef PBL_COLOR
+      s_chevron_color_palette[i] = PALETTES[color_scheme-1][i]; 
+      #else
+      switch (PALETTES[color_scheme-1][i]){
+        case -1: s_chevron_color_palette[i] = GColorClear; break;
+        case 0: s_chevron_color_palette[i] = GColorBlack; break;
+        case 1: s_chevron_color_palette[i] = GColorWhite; break;
+        default: s_chevron_color_palette[i] = GColorBlack; break;
+      }
+      #endif
+    }
+    #ifdef PBL_COLOR
     window_set_background_color(s_main_window,(GColor)s_chevron_color_palette[NUM_PALETTE_COLORS-1]);  
-  #endif 
+    #endif
+  }
 }
 
 
 // chevron
 static void chevron_layer_update_proc(Layer *this_layer, GContext *ctx){
   
-  for (int i = 0; i < NUM_PALETTE_COLORS; i++){  
-    
-    if (!gcolor_equal((GColor)s_chevron_color_palette[i],GColorClear)){
+  // option for blank background
+  if(bg_image_selection != 0){
+  
+    for (int i = 0; i < NUM_PALETTE_COLORS; i++){  
       
-    graphics_context_set_fill_color(ctx, (GColor)s_chevron_color_palette[i]);
-      
-      #ifdef PBL_ROUND 
-       if (i < NUM_PALETTE_COLORS - 1){
-         gpath_move_to(s_chevron_path, GPoint(-110,29*(i-1)-70));
-         gpath_draw_filled(ctx, s_chevron_path);
-       }
-      #else
-      
-        #ifdef PBL_COLOR
-          if (i < NUM_PALETTE_COLORS - 1){
-            gpath_move_to(s_chevron_path, GPoint(-128,29*(i-1)-73));
+      if (!gcolor_equal((GColor)s_chevron_color_palette[i],GColorClear)){
+        
+      graphics_context_set_fill_color(ctx, (GColor)s_chevron_color_palette[i]);
+        
+        #ifdef PBL_ROUND 
+         if (i < NUM_PALETTE_COLORS - 1){
+           gpath_move_to(s_chevron_path, GPoint(-110,29*(i-1)-70));
+           gpath_draw_filled(ctx, s_chevron_path);
+         }
+        #else
+        
+          #ifdef PBL_COLOR
+            if (i < NUM_PALETTE_COLORS - 1){
+              gpath_move_to(s_chevron_path, GPoint(-128,29*(i-1)-73));
+              gpath_draw_filled(ctx, s_chevron_path);
+            }
+            
+          #else
+          gpath_move_to(s_chevron_path, GPoint(-128,29*(i-1)-73));
+          gpath_draw_filled(ctx, s_chevron_path);
+          if(i == (NUM_PALETTE_COLORS - 1)){
+            // draw
+            gpath_move_to(s_chevron_path, GPoint(-128,29*(i)-73));
             gpath_draw_filled(ctx, s_chevron_path);
           }
-          
-        #else
-        gpath_move_to(s_chevron_path, GPoint(-128,29*(i-1)-73));
-        gpath_draw_filled(ctx, s_chevron_path);
-        if(i == (NUM_PALETTE_COLORS - 1)){
-          // draw
-          gpath_move_to(s_chevron_path, GPoint(-128,29*(i)-73));
-          gpath_draw_filled(ctx, s_chevron_path);
-        }
-      
-        #endif
-      
-      #endif    
+        
+          #endif
+        
+        #endif    
+        
+      }
       
     }
+  }
+  else {  // "blank" background
     
   }
      
@@ -679,7 +686,7 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     default: slant_direction = -1; break;
   }
   
-  APP_LOG(APP_LOG_LEVEL_DEBUG,"slant_direction = %d",slant_direction);
+ // APP_LOG(APP_LOG_LEVEL_DEBUG,"slant_direction = %d",slant_direction);
   
   const int32_t const_slant_direction_num = (int32_t)slant_direction_num;
   
@@ -707,6 +714,8 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   // set the value of big image selection from the dictionary
   const int32_t new_bg_image_selection = (int32_t)atoi(bg_image_t->value->cstring);
   persist_write_int(KEY_BG_IMAGE, new_bg_image_selection);
+  
+  bg_image_selection = new_bg_image_selection;
   
   set_color_palette(new_bg_image_selection);
   layer_mark_dirty(s_chevron_layer);
@@ -759,7 +768,6 @@ static void main_window_load(Window *window){
   layer_add_child(window_layer,s_chevron_layer);
   
   s_canvas_layer = layer_create(window_bounds);
-  //layer_add_child(bitmap_layer_get_layer(s_camo_bg_layer), s_canvas_layer);
   layer_add_child(window_layer, s_canvas_layer);
   
   GRect start_number_box = GRect(72,-100,55,68);
@@ -842,8 +850,7 @@ static void init(void){     // set up layers/windows
   
   GPoint number_starting_points[4] = {{0,0}};
   for (int i=1; i<4; i++){
-    number_starting_points[i] = number_point_setup(number_starting_points[0], NUMBER_SPACING, CENTER_SPACING_CONSTANT, i, M_PI / 7);
-    //APP_LOG(APP_LOG_LEVEL_INFO,"Point %d: (%d, %d)",i, number_starting_points[i].x,number_starting_points[i].y);
+    number_starting_points[i] = number_point_setup(number_starting_points[0], NUMBER_SPACING, CENTER_SPACING_CONSTANT, i, (slant_direction)*M_PI / 7);
   }
   
   app_message_register_inbox_received(inbox_received_handler);

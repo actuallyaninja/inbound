@@ -39,7 +39,7 @@ static uint8_t PALETTES[NUM_PALETTES][NUM_PALETTE_COLORS] = {
   {GColorWhiteARGB8,GColorLightGrayARGB8,GColorDarkGrayARGB8,GColorBlackARGB8,
                                       GColorDarkGrayARGB8,GColorLightGrayARGB8,GColorWhiteARGB8},
   {GColorRedARGB8,GColorDarkGrayARGB8,GColorBlackARGB8,GColorRedARGB8,
-                                      GColorBlackARGB8,GColorDarkGrayARGB8,GColorRedARGB8}
+                                      GColorDarkGrayARGB8,GColorBlackARGB8,GColorRedARGB8}
 };
 
 #else
@@ -53,24 +53,5 @@ int PALETTES[NUM_PALETTES][NUM_PALETTE_COLORS] = {
   {-1,-1,-1,0,-1,-1,-1},
   {-1,0,-1,0,-1,0,-1}
 };
-/*
-GColor PALETTES[NUM_PALETTES][NUM_PALETTE_COLORS] = {
-  {GColorBlack,GColorClear,GColorBlack,GColorBlack,
-                                      GColorBlack,GColorClear,GColorBlack},
-  {GColorWhite,GColorClear,GColorBlack,GColorBlack,
-                                      GColorBlack,GColorClear,GColorWhite},
-  {GColorBlack,GColorClear,GColorClear,GColorBlack,
-                                      GColorClear,GColorClear,GColorBlack},
-  {GColorWhite,GColorBlack,GColorClear,GColorClear,
-                                      GColorClear,GColorBlack,GColorWhite},
-  {GColorBlack,GColorClear,GColorClear,GColorClear,
-                                      GColorClear,GColorClear,GColorBlack},
-  {GColorWhite,GColorClear,GColorBlack,GColorClear,
-                                      GColorBlack,GColorClear,GColorWhite},
-  {GColorClear,GColorClear,GColorClear,GColorBlack,
-                                      GColorClear,GColorClear,GColorClear},
-  {GColorClear,GColorBlack,GColorClear,GColorBlack,
-                                      GColorClear,GColorBlack,GColorClear}
-};
-*/
+
 #endif

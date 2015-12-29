@@ -23,22 +23,6 @@
                 "type": "bitmap"
             },
             {
-                "file": "images/PCT_25_FILL",
-                "name": "PCT_25_FILL",
-                "targetPlatforms": [
-                    "aplite"
-                ],
-                "type": "bitmap"
-            },
-            {
-                "file": "images/PCT_75_FILL",
-                "name": "PCT_75_FILL",
-                "targetPlatforms": [
-                    "aplite"
-                ],
-                "type": "bitmap"
-            },
-            {
                 "file": "images/PCT_50_FILL",
                 "name": "PCT_50_FILL",
                 "targetPlatforms": [
