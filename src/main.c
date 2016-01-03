@@ -5,12 +5,10 @@
 #include <positioning.h>
 #include <chevrons.h>
 
-//#define KEY_SLANT_DIRECTION 0
 #define KEY_SLANT_DIR_NUM 0
 #define KEY_BG_IMAGE 1
 #define KEY_BG_COLOR 2
 
-//static GPath *s_boxpath;
 static GPath *s_number1_path;
 static GPath *s_number2_path;
 static GPath *s_number3_path;
@@ -22,7 +20,7 @@ static GPath *s_chevron_path;
 
 static Window *s_main_window;
 static Layer *s_canvas_layer;
-static Layer *s_chevron_layer;
+//static Layer *s_chevron_layer;
 static Layer *s_box1_layer;
 static Layer *s_box2_layer;
 static Layer *s_box3_layer;
@@ -47,7 +45,6 @@ int32_t bg_image_selection;
 
 bool digits_changed_during_tick[4] = {0,0,0,0};
 int8_t anim_delays[4] = {0,0,0,0};
-
 
 
 #define ROTATION_ANGLE (TRIG_MAX_ANGLE*0.073)
@@ -456,8 +453,78 @@ static void set_day_digit2_pathinfo_from_existing(GPathInfo existing2, int targe
 
 static void canvas_update_proc(Layer *this_layer, GContext *ctx) {
  
+  /* DRAW CHEVRONS */
+    
+  // option for blank background
+  if(bg_image_selection != 0){
+  
+    for (int i = 0; i < NUM_PALETTE_COLORS; i++){  
+      
+      if (!gcolor_equal((GColor)s_chevron_color_palette[i],GColorClear)){
+        
+        graphics_context_set_fill_color(ctx, (GColor)s_chevron_color_palette[i]);
+        
+        #ifdef PBL_ROUND
+        if (i < NUM_PALETTE_COLORS - 1){
+           gpath_move_to(s_chevron_path, GPoint(-1,29*(i-1)-13));
+           gpath_draw_filled(ctx, s_chevron_path);
+         }
+        #else
+        if (i < NUM_PALETTE_COLORS - 1){
+              gpath_move_to(s_chevron_path, GPoint(-1,29*(i-1)-13));
+              gpath_draw_filled(ctx, s_chevron_path);
+        }
+        
+        #ifndef PBL_COLOR  // draw the bottom two chevrons to cover the lower area
+        if(i == (NUM_PALETTE_COLORS - 1)){
+          gpath_move_to(s_chevron_path, GPoint(-1,29*(i-1)-13));
+          gpath_draw_filled(ctx, s_chevron_path);
+          gpath_move_to(s_chevron_path, GPoint(-1,29*(i)-13));
+          gpath_draw_filled(ctx, s_chevron_path);
+        }
+        #endif
+            
+        #endif
+        
+        /*
+        #ifdef PBL_ROUND 
+         if (i < NUM_PALETTE_COLORS - 1){
+           gpath_move_to(s_chevron_path, GPoint(-110,29*(i-1)-70));
+           gpath_draw_filled(ctx, s_chevron_path);
+         }
+        #else
+        
+          #ifdef PBL_COLOR
+            if (i < NUM_PALETTE_COLORS - 1){
+              gpath_move_to(s_chevron_path, GPoint(-128,29*(i-1)-73));
+              gpath_draw_filled(ctx, s_chevron_path);
+            }
+            
+          #else
+          gpath_move_to(s_chevron_path, GPoint(-128,29*(i-1)-73));
+          gpath_draw_filled(ctx, s_chevron_path);
+          if(i == (NUM_PALETTE_COLORS - 1)){
+            // draw
+            gpath_move_to(s_chevron_path, GPoint(-128,29*(i)-73));
+            gpath_draw_filled(ctx, s_chevron_path);
+          }
+        
+          #endif
+        
+        #endif    
+        */
+      }
+      
+    }
+  }
+     
+  
+  /*  DRAW DATE DIGITS */
+  
+
   gpath_rotate_to(s_monthday1_path, ROTATION_ANGLE*slant_direction);
   gpath_rotate_to(s_monthday2_path, ROTATION_ANGLE*slant_direction);
+  
   // draw drop shadows
   graphics_context_set_fill_color(ctx, shadow_color);
   
@@ -623,6 +690,7 @@ static void set_color_palette(int color_scheme){
 
 
 // chevron
+/*
 static void chevron_layer_update_proc(Layer *this_layer, GContext *ctx){
   
   // option for blank background
@@ -667,8 +735,9 @@ static void chevron_layer_update_proc(Layer *this_layer, GContext *ctx){
   else {  // "blank" background
     
   }
-     
+  
 }
+*/
 
 static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   
@@ -718,7 +787,8 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   bg_image_selection = new_bg_image_selection;
   
   set_color_palette(new_bg_image_selection);
-  layer_mark_dirty(s_chevron_layer);
+  layer_mark_dirty(s_canvas_layer);
+  //layer_mark_dirty(s_chevron_layer);
     
   //APP_LOG(APP_LOG_LEVEL_DEBUG,"new_bg_image_selection: %d", (int)new_bg_image_selection);
   //APP_LOG(APP_LOG_LEVEL_DEBUG,"bg_image_selection value stored in persistent storage: %d", (int)persist_read_int(KEY_BG_IMAGE));
@@ -764,8 +834,10 @@ static void main_window_load(Window *window){
   #endif
   
   //chevron layer
+  /*
   s_chevron_layer = layer_create(window_bounds);
   layer_add_child(window_layer,s_chevron_layer);
+  */
   
   s_canvas_layer = layer_create(window_bounds);
   layer_add_child(window_layer, s_canvas_layer);
@@ -795,7 +867,7 @@ static void main_window_load(Window *window){
   layer_set_update_proc(s_box3_layer, box3_update_proc);
   layer_set_update_proc(s_box4_layer, box4_update_proc);
   
-  layer_set_update_proc(s_chevron_layer, chevron_layer_update_proc);
+  //layer_set_update_proc(s_chevron_layer, chevron_layer_update_proc);
    
 }
 
@@ -810,7 +882,7 @@ static void main_window_unload(Window *window){
   bitmap_layer_destroy(s_fill_bitmap_layer);
   
   layer_destroy(s_canvas_layer);
-  layer_destroy(s_chevron_layer);
+  //layer_destroy(s_chevron_layer);
   
 }
    
