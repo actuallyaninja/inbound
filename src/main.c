@@ -348,8 +348,8 @@ static void update_time() {
   
   
   //for testing
-  currentHour = 12;
-  currentMinute = 34;
+  //currentHour = 12;
+  //currentMinute = 34;
   
   
   // after this point, we can tell which digits changed
@@ -372,7 +372,7 @@ static void update_time() {
   currentMonthDay = tick_time->tm_mday;
   
   //testing:
-  currentMonthDay = 15;
+  //currentMonthDay = 15;
   
   if(currentMonthDay > 9){
     strftime(month_and_weekday_buffer,sizeof(month_and_weekday_buffer),"%b    %n%A",tick_time);
