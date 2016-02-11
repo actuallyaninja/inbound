@@ -3,7 +3,8 @@ Pebble.addEventListener('ready', function() {
 });
 
 Pebble.addEventListener('showConfiguration', function() {
-  var url = 'http://firstwebappcsharp.azurewebsites.net/';
+  //var url = 'http://firstwebappcsharp.azurewebsites.net/';
+  var url = 'http://actuallyaninja.github.io/djangles-config/';
 
   //console.log('Showing configuration page: ' + url);
   console.log('Showing JS configuration page');
@@ -18,8 +19,8 @@ Pebble.addEventListener('webviewclosed', function(e) {
 
     Pebble.sendAppMessage({
       slantDirectionNumber: configData.slantDirectionNumber,
-      backgroundImageSelection: configData.backgroundImageSelection
-      //,backgroundColor: parseInt(configData.backgroundColor, 16)
+      backgroundImageSelection: configData.backgroundImageSelection,
+      bgPatternRadioButton: configData.bgPatternRadioButton
     }, function() {
       console.log('Send successful!');
     }, function() {

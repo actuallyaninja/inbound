@@ -1,12 +1,14 @@
 {
     "appKeys": {
         "backgroundImageSelection": 1,
+        "bgPatternRadioButton": 2,
         "slantDirectionNumber": 0
     },
     "capabilities": [
         "configurable"
     ],
     "companyName": "Djingaling Ind.",
+    "enableMultiJS": false,
     "longName": "Djangles",
     "projectType": "native",
     "resources": {

@@ -7,7 +7,8 @@
 
 #define KEY_SLANT_DIR_NUM 0
 #define KEY_BG_IMAGE 1
-#define KEY_BG_COLOR 2
+//#define KEY_BG_COLOR 2 //not used anymore
+#define KEY_BG_PATTERN 2
 
 static GPath *s_number1_path;
 static GPath *s_number2_path;
@@ -41,6 +42,7 @@ static char month_and_weekday_buffer[50];
 
 int slant_direction;  // 1 is slanted down to right, -1 is slanted up to right
 int32_t bg_image_selection;
+int32_t bg_pattern_selection;
 
 bool digits_changed_during_tick[4] = {0,0,0,0};
 int8_t anim_delays[4] = {0,0,0,0};
@@ -344,11 +346,11 @@ static void update_time() {
   
   //APP_LOG(APP_LOG_LEVEL_DEBUG,"Time updated from %d:%d to %d:%d", previousHour, previousMinute, currentHour, currentMinute);
   
-  /*
+  
   //for testing
-  currentHour = 8;
-  currentMinute = 00;
-  */
+  currentHour = 12;
+  currentMinute = 34;
+  
   
   // after this point, we can tell which digits changed
   if(((int)floor(currentHour / 10)) != ((int)floor(previousHour / 10))){     // hour tens digit
@@ -370,7 +372,7 @@ static void update_time() {
   currentMonthDay = tick_time->tm_mday;
   
   //testing:
-  //currentMonthDay = 31;
+  currentMonthDay = 15;
   
   if(currentMonthDay > 9){
     strftime(month_and_weekday_buffer,sizeof(month_and_weekday_buffer),"%b    %n%A",tick_time);
@@ -446,7 +448,7 @@ static void canvas_update_proc(Layer *this_layer, GContext *ctx) {
   /* DRAW CHEVRONS */
     
   // option for blank background
-  if(bg_image_selection != 0){
+  if(bg_pattern_selection != 0){
   
     for (int i = 0; i < NUM_PALETTE_COLORS; i++){  
       
@@ -651,6 +653,7 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   
   Tuple *slant_dir_num_t = dict_find(iter, KEY_SLANT_DIR_NUM);
   Tuple *bg_image_t = dict_find(iter, KEY_BG_IMAGE);
+  Tuple *bg_pattern_t = dict_find(iter, KEY_BG_PATTERN);
  
   int old_slant_direction = slant_direction;
 
@@ -690,9 +693,14 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   const int32_t new_bg_image_selection = (int32_t)atoi(bg_image_t->value->cstring);
   persist_write_int(KEY_BG_IMAGE, new_bg_image_selection);
   
-  bg_image_selection = new_bg_image_selection;
+  const int32_t new_bg_pattern_selection = (int32_t)atoi(bg_pattern_t->value->cstring);
+  persist_write_int(KEY_BG_PATTERN, new_bg_pattern_selection);
   
-  set_color_palette(new_bg_image_selection);
+  APP_LOG(APP_LOG_LEVEL_DEBUG,"new_bg_image_selection = %d, new_bg_pattern_selection = %d",(int)new_bg_image_selection,(int)new_bg_pattern_selection);
+      
+  bg_pattern_selection = new_bg_pattern_selection;
+  
+  set_color_palette(new_bg_pattern_selection);
   layer_mark_dirty(s_canvas_layer);
     
 }
@@ -714,10 +722,12 @@ static void main_window_load(Window *window){
   }
   
   //set backgroud choice from persistent storage
-  if(persist_exists(KEY_BG_IMAGE)){
-    bg_image_selection = persist_read_int(KEY_BG_IMAGE);
+  //if(persist_exists(KEY_BG_IMAGE)){
+    //bg_image_selection = persist_read_int(KEY_BG_IMAGE);
+  if(persist_exists(KEY_BG_PATTERN)){
+    bg_pattern_selection = persist_read_int(KEY_BG_PATTERN);
   } else {
-    bg_image_selection = 1;
+    bg_pattern_selection = 1;
   }  // default to 1 if no persistent storage exists yet
   
   
@@ -754,7 +764,7 @@ static void main_window_load(Window *window){
   
   window_set_background_color(s_main_window, GColorBlack);
   
-  set_color_palette(bg_image_selection); // moved this to after the window layer is created!
+  set_color_palette(bg_pattern_selection); // moved this to after the window layer is created!
   
   layer_set_update_proc(s_canvas_layer, canvas_update_proc);
   
