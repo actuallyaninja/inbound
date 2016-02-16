@@ -4,10 +4,15 @@ Pebble.addEventListener('ready', function() {
 
 Pebble.addEventListener('showConfiguration', function() {
   //var url = 'http://firstwebappcsharp.azurewebsites.net/';
-  var url = 'http://actuallyaninja.github.io/djangles-config/';
-
+  var url = 'http://actuallyaninja.github.io/djangles-config/?platform=';
+  
+  if(Pebble.getActiveWatchInfo) {
+    var myPlatform = Pebble.getActiveWatchInfo().platform; 
+    url = url + myPlatform;
+  }
+  
   //console.log('Showing configuration page: ' + url);
-  console.log('Showing JS configuration page');
+  console.log('Showing JS configuration page.' + url);
 
   Pebble.openURL(url);
 });

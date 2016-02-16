@@ -262,7 +262,7 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
       
       s_dropin1_animation = property_animation_create_layer_frame(s_box1_layer, &start, &finish);
       animation_set_duration((Animation*)s_dropin1_animation, anim_duration);
-      animation_set_delay((Animation*)s_dropin1_animation, initial_delay+(x*60));    
+      animation_set_delay((Animation*)s_dropin1_animation, 0);    
       animation_set_curve((Animation*)s_dropin1_animation, AnimationCurveEaseOut);
       animation_schedule((Animation*)s_dropin1_animation);
       break;
@@ -274,8 +274,8 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
         s_number2_path = gpath_create(time_digit_info(currentHour % 10));
     
         s_dropin2_animation = property_animation_create_layer_frame(s_box2_layer, &start, &finish);
-        animation_set_duration((Animation*)s_dropin2_animation, anim_duration);
-        animation_set_delay((Animation*)s_dropin2_animation, initial_delay+(x*60));
+        animation_set_duration((Animation*)s_dropin2_animation, anim_duration+(x*50));
+        animation_set_delay((Animation*)s_dropin2_animation, initial_delay+(x*100));
         animation_set_curve((Animation*)s_dropin2_animation, AnimationCurveEaseOut);
         animation_schedule((Animation*)s_dropin2_animation);
         break;
@@ -287,8 +287,8 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
         s_number3_path = gpath_create(time_digit_info((int)floor(currentMinute / 10)));
     
         s_dropin3_animation = property_animation_create_layer_frame(s_box3_layer, &start, &finish);
-        animation_set_duration((Animation*)s_dropin3_animation, anim_duration);
-        animation_set_delay((Animation*)s_dropin3_animation, initial_delay+(x*60));
+        animation_set_duration((Animation*)s_dropin3_animation, anim_duration+(x*50));
+        animation_set_delay((Animation*)s_dropin3_animation, initial_delay+(x*100));
         animation_set_curve((Animation*)s_dropin3_animation, AnimationCurveEaseOut);
         animation_schedule((Animation*)s_dropin3_animation);
         break;
@@ -301,8 +301,8 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
         s_number4_path = gpath_create(time_digit_info(currentMinute % 10));    
     
         s_dropin4_animation = property_animation_create_layer_frame(s_box4_layer, &start, &finish);
-        animation_set_duration((Animation*)s_dropin4_animation, anim_duration);
-        animation_set_delay((Animation*)s_dropin4_animation,initial_delay+(x*50));
+        animation_set_duration((Animation*)s_dropin4_animation, anim_duration+(x*50));
+        animation_set_delay((Animation*)s_dropin4_animation,initial_delay+(x*100));
         animation_set_curve((Animation*)s_dropin4_animation, AnimationCurveEaseOut);  
         animation_schedule((Animation*)s_dropin4_animation);
         break;
@@ -696,7 +696,7 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   const int32_t new_bg_pattern_selection = (int32_t)atoi(bg_pattern_t->value->cstring);
   persist_write_int(KEY_BG_PATTERN, new_bg_pattern_selection);
   
-  APP_LOG(APP_LOG_LEVEL_DEBUG,"new_bg_image_selection = %d, new_bg_pattern_selection = %d",(int)new_bg_image_selection,(int)new_bg_pattern_selection);
+  //APP_LOG(APP_LOG_LEVEL_DEBUG,"new_bg_image_selection = %d, new_bg_pattern_selection = %d",(int)new_bg_image_selection,(int)new_bg_pattern_selection);
       
   bg_pattern_selection = new_bg_pattern_selection;
   
