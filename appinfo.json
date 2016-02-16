@@ -1,7 +1,6 @@
 {
     "appKeys": {
-        "backgroundImageSelection": 1,
-        "bgPatternRadioButton": 2,
+        "bgPatternRadioButton": 1,
         "slantDirectionNumber": 0
     },
     "capabilities": [

@@ -12,7 +12,7 @@ Pebble.addEventListener('showConfiguration', function() {
   }
   
   //console.log('Showing configuration page: ' + url);
-  console.log('Showing JS configuration page.' + url);
+  console.log('Showing JS configuration page.');
 
   Pebble.openURL(url);
 });
@@ -24,7 +24,7 @@ Pebble.addEventListener('webviewclosed', function(e) {
 
     Pebble.sendAppMessage({
       slantDirectionNumber: configData.slantDirectionNumber,
-      backgroundImageSelection: configData.backgroundImageSelection,
+      //backgroundImageSelection: configData.backgroundImageSelection,
       bgPatternRadioButton: configData.bgPatternRadioButton
     }, function() {
       console.log('Send successful!');

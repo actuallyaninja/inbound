@@ -6,9 +6,9 @@
 #include <chevrons.h>
 
 #define KEY_SLANT_DIR_NUM 0
-#define KEY_BG_IMAGE 1
+//#define KEY_BG_IMAGE 1
 //#define KEY_BG_COLOR 2 //not used anymore
-#define KEY_BG_PATTERN 2
+#define KEY_BG_PATTERN 1
 
 static GPath *s_number1_path;
 static GPath *s_number2_path;
@@ -37,6 +37,7 @@ static uint8_t s_chevron_color_palette[NUM_PALETTE_COLORS] = {0};
 
 int8_t currentHour, currentMinute, currentMonthDay;
 int8_t previousHour, previousMinute;
+bool is24hr;
 static char month_and_weekday_buffer[50];
 //static char abbrv_month[4], day_of_month[3], full_weekday[10];
 
@@ -369,6 +370,15 @@ static void update_time() {
     digits_changed_during_tick[3] = true;
   }
   
+  // make sure to reset all digits if 24 setting is changed - otherwise, alignment can be off
+  if(clock_is_24h_style() != is24hr){
+    digits_changed_during_tick[0] = true;
+    digits_changed_during_tick[1] = true;
+    digits_changed_during_tick[2] = true;
+    digits_changed_during_tick[3] = true;
+  }
+  is24hr = clock_is_24h_style();
+  
   currentMonthDay = tick_time->tm_mday;
   
   //testing:
@@ -652,7 +662,6 @@ static void set_color_palette(int color_scheme){
 static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   
   Tuple *slant_dir_num_t = dict_find(iter, KEY_SLANT_DIR_NUM);
-  Tuple *bg_image_t = dict_find(iter, KEY_BG_IMAGE);
   Tuple *bg_pattern_t = dict_find(iter, KEY_BG_PATTERN);
  
   int old_slant_direction = slant_direction;
@@ -689,15 +698,10 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     digits_changed_during_tick[3] = false;
   }
   
-  // set the value of big image selection from the dictionary
-  const int32_t new_bg_image_selection = (int32_t)atoi(bg_image_t->value->cstring);
-  persist_write_int(KEY_BG_IMAGE, new_bg_image_selection);
-  
+  // set the value of big image selection from the dictionary 
   const int32_t new_bg_pattern_selection = (int32_t)atoi(bg_pattern_t->value->cstring);
   persist_write_int(KEY_BG_PATTERN, new_bg_pattern_selection);
-  
-  //APP_LOG(APP_LOG_LEVEL_DEBUG,"new_bg_image_selection = %d, new_bg_pattern_selection = %d",(int)new_bg_image_selection,(int)new_bg_pattern_selection);
-      
+       
   bg_pattern_selection = new_bg_pattern_selection;
   
   set_color_palette(new_bg_pattern_selection);
@@ -722,8 +726,6 @@ static void main_window_load(Window *window){
   }
   
   //set backgroud choice from persistent storage
-  //if(persist_exists(KEY_BG_IMAGE)){
-    //bg_image_selection = persist_read_int(KEY_BG_IMAGE);
   if(persist_exists(KEY_BG_PATTERN)){
     bg_pattern_selection = persist_read_int(KEY_BG_PATTERN);
   } else {
@@ -805,6 +807,8 @@ static void init(void){     // set up layers/windows
   s_monthday2_path = NULL;
   
   update_time();
+  
+  is24hr = clock_is_24h_style();
   
   // Create main Window
   s_main_window = window_create();
