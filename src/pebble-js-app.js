@@ -4,7 +4,7 @@ Pebble.addEventListener('ready', function() {
 
 Pebble.addEventListener('showConfiguration', function() {
   //var url = 'http://firstwebappcsharp.azurewebsites.net/';
-  var url = 'http://actuallyaninja.github.io/djangles-config/?platform=';
+  var url = 'http://actuallyaninja.github.io/djangles-config/v1/?platform=';
   
   if(Pebble.getActiveWatchInfo) {
     var myPlatform = Pebble.getActiveWatchInfo().platform; 
@@ -24,7 +24,6 @@ Pebble.addEventListener('webviewclosed', function(e) {
 
     Pebble.sendAppMessage({
       slantDirectionNumber: configData.slantDirectionNumber,
-      //backgroundImageSelection: configData.backgroundImageSelection,
       bgPatternRadioButton: configData.bgPatternRadioButton
     }, function() {
       console.log('Send successful!');
