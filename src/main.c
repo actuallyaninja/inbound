@@ -4,7 +4,6 @@
 #include <positioning.h>
 #include <chevrons.h>
 
-
 #define KEY_SLANT_DIR_NUM 0
 #define KEY_BG_PATTERN 1
 #define KEY_ENABLE_STARTUP_ANIM 2
@@ -41,7 +40,6 @@ static char month_and_weekday_buffer[50];
 //static char abbrv_month[4], day_of_month[3], full_weekday[10];
 
 int slant_direction;  // 1 is slanted down to right, -1 is slanted up to right
-//int32_t bg_image_selection;
 int32_t bg_pattern_selection;
 int32_t enable_startup_animations;
 
@@ -767,8 +765,6 @@ static void main_window_load(Window *window){
     enable_startup_animations = persist_read_bool(KEY_ENABLE_STARTUP_ANIM);
   } else {
     enable_startup_animations = true;
-  }
-    
   }
   
   // Create Layers
