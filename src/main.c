@@ -236,6 +236,11 @@ static void set_origin_point(){
   
   orig_x = orig.x;
   orig_y = orig.y;
+  
+  #ifdef PBL_ROUND
+  orig_x += 18;
+  orig_y += 6;
+  #endif
 }
 
 static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3} 
@@ -243,10 +248,8 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
   //APP_LOG(APP_LOG_LEVEL_INFO,"drop digit started. Heap bytes used | free: %d | %d", (int)heap_bytes_used,(int)heap_bytes_free());
   
   GRect start, finish;
-  int x_offset = 0; 
-  //26;
-  int y_offset = 0; 
-  //13;
+  int x_offset = 0;
+  int y_offset = 0;
   
   int x = which_digit; // which_digit should be one of: {0,1,2,3}
   
@@ -255,45 +258,6 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
   int initial_delay = 0;  
   
   // x and y spacing
-
-  /*
-  
-  GPoint orig = {0,0};
-  
-  // for original slant:
-  if(slant_direction == 1){
-        
-    if(currentHour > 9 || currentHour == 0)  // for 4 digits
-    {
-      if(currentHour != 0 && currentHour < 20){ // if hour from 10 thru 19, shift numbers 
-                              //left slightly to correct for width of number 1       
-        orig = GPoint(-5,26);
-      } else {
-        // hours 20 to 23
-        orig = GPoint(0,26);        
-      }
-    } else{                   
-      // for 3 digits
-      orig = GPoint(-13,19);
-    }
-  
-  } else {
-    /// for opposite slant:
-    if(currentHour > 9 || currentHour == 0){  // for 4 digits
-      if(currentHour != 0 && currentHour < 20){ // if hour is from 10 thru 19, shift numbers 
-                              //left slightly to correct for width of number 1
-        orig = GPoint(-2,72);
-      } else {  
-        // 4-digits: 20:00 through 23:59
-        orig = GPoint(2,72);
-      }
-    } else{       
-      // for 3 digits
-      orig = GPoint(-11,78);
-    }
-    
-  }
-  */
   set_origin_point();
   
   GPoint orig = GPoint(orig_x,orig_y);
@@ -302,11 +266,6 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
   digit_start_point = number_point_setup(orig, NUMBER_SPACING, CENTER_SPACE_WIDTH, x, (slant_direction)*M_PI / 7);
   x_offset = digit_start_point.x;
   y_offset = digit_start_point.y;
-
-  #ifdef PBL_ROUND
-  x_offset += 18;
-  y_offset += 6;
-  #endif
   
   finish = GRect(x_offset, y_offset, DIGIT_LAYER_WIDTH, DIGIT_LAYER_HEIGHT);
     //start the shapes off the screen to the bottom left if slanted left, bottom right if slanted right
@@ -327,7 +286,6 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
     start = finish;
   }
 
-  
      
   // configure and schedule animations
   switch (which_digit){
@@ -424,7 +382,7 @@ static void update_time() {
   
   //APP_LOG(APP_LOG_LEVEL_DEBUG,"Time updated from %d:%d to %d:%d", previousHour, previousMinute, currentHour, currentMinute);
   
-  
+
   //for testing
   //currentHour = 12;
   //currentMinute = 34;
@@ -482,6 +440,8 @@ static void update_time() {
   
   s_monthday1_path = gpath_create(ptr_day_digit_1);
   s_monthday2_path = gpath_create(ptr_day_digit_2);
+  
+  layer_mark_dirty(s_canvas_layer);
   
 }
 
