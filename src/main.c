@@ -8,6 +8,9 @@
 #define KEY_BG_PATTERN 1
 #define KEY_ENABLE_STARTUP_ANIM 2
 
+#define DIGIT_LAYER_WIDTH 55
+#define DIGIT_LAYER_HEIGHT 68
+
 static GPath *s_number1_path;
 static GPath *s_number2_path;
 static GPath *s_number3_path;
@@ -120,7 +123,7 @@ static void pull_digit(int which_digit){ // which_digit is one of {0,1,2,3}
                                         //according to HH:MM => [0][1]:[2][3] in the current time
    
   struct GRect * pull_finish;
-  GRect p_finish = GRect(72,-73,55,68);
+  GRect p_finish = GRect(72,-73,DIGIT_LAYER_WIDTH,DIGIT_LAYER_HEIGHT);
   
   int x = which_digit; // which_digit should be one of: {0,1,2,3}
   
@@ -138,9 +141,9 @@ static void pull_digit(int which_digit){ // which_digit is one of {0,1,2,3}
     
   // move the shapes off the screen to the top right if slanted right, top left if slanted left
   if(slant_direction == 1){
-    p_finish = GRect(x*30+90, -73, 55, 68);
+    p_finish = GRect(x*30+90, -73, DIGIT_LAYER_WIDTH,DIGIT_LAYER_HEIGHT);
   }else{
-    p_finish = GRect(x*30-80, -73, 55, 68);
+    p_finish = GRect(x*30-80, -73, DIGIT_LAYER_WIDTH,DIGIT_LAYER_HEIGHT);
   }
   pull_finish = &p_finish;
   
@@ -192,22 +195,7 @@ static void pull_digit(int which_digit){ // which_digit is one of {0,1,2,3}
   
 }
 
-static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3} 
-                                        //according to HH:MM => [0][1]:[2][3] in the current time
-  //APP_LOG(APP_LOG_LEVEL_INFO,"drop digit started. Heap bytes used | free: %d | %d", (int)heap_bytes_used,(int)heap_bytes_free());
-  
-  GRect start, finish;
-  int x_offset = 0; 
-  //26;
-  int y_offset = 0; 
-  //13;
-  
-  int x = which_digit; // which_digit should be one of: {0,1,2,3}
-  
-  int anim_duration = 0; //480;
-  int delay_btw_digits = 0; //50;
-  int initial_delay = 0;  
-  
+static void set_origin_point(){
   // x and y spacing
 
   GPoint orig = {0,0};
@@ -248,6 +236,67 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
   
   orig_x = orig.x;
   orig_y = orig.y;
+}
+
+static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3} 
+                                        //according to HH:MM => [0][1]:[2][3] in the current time
+  //APP_LOG(APP_LOG_LEVEL_INFO,"drop digit started. Heap bytes used | free: %d | %d", (int)heap_bytes_used,(int)heap_bytes_free());
+  
+  GRect start, finish;
+  int x_offset = 0; 
+  //26;
+  int y_offset = 0; 
+  //13;
+  
+  int x = which_digit; // which_digit should be one of: {0,1,2,3}
+  
+  int anim_duration = 0; //480;
+  int delay_btw_digits = 0; //50;
+  int initial_delay = 0;  
+  
+  // x and y spacing
+
+  /*
+  
+  GPoint orig = {0,0};
+  
+  // for original slant:
+  if(slant_direction == 1){
+        
+    if(currentHour > 9 || currentHour == 0)  // for 4 digits
+    {
+      if(currentHour != 0 && currentHour < 20){ // if hour from 10 thru 19, shift numbers 
+                              //left slightly to correct for width of number 1       
+        orig = GPoint(-5,26);
+      } else {
+        // hours 20 to 23
+        orig = GPoint(0,26);        
+      }
+    } else{                   
+      // for 3 digits
+      orig = GPoint(-13,19);
+    }
+  
+  } else {
+    /// for opposite slant:
+    if(currentHour > 9 || currentHour == 0){  // for 4 digits
+      if(currentHour != 0 && currentHour < 20){ // if hour is from 10 thru 19, shift numbers 
+                              //left slightly to correct for width of number 1
+        orig = GPoint(-2,72);
+      } else {  
+        // 4-digits: 20:00 through 23:59
+        orig = GPoint(2,72);
+      }
+    } else{       
+      // for 3 digits
+      orig = GPoint(-11,78);
+    }
+    
+  }
+  */
+  set_origin_point();
+  
+  GPoint orig = GPoint(orig_x,orig_y);
   
   GPoint digit_start_point = GPoint(0,0);
   digit_start_point = number_point_setup(orig, NUMBER_SPACING, CENTER_SPACE_WIDTH, x, (slant_direction)*M_PI / 7);
@@ -259,12 +308,12 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
   y_offset += 6;
   #endif
   
-  finish = GRect(x_offset, y_offset, 55, 68);
+  finish = GRect(x_offset, y_offset, DIGIT_LAYER_WIDTH, DIGIT_LAYER_HEIGHT);
     //start the shapes off the screen to the bottom left if slanted left, bottom right if slanted right
   if(slant_direction == 1){
-    start = GRect(-55, 185, 55, 68);
+    start = GRect(-55, 185, DIGIT_LAYER_WIDTH, DIGIT_LAYER_HEIGHT);
   }else{
-    start = GRect(185, 185, 55, 68);
+    start = GRect(185, 185, DIGIT_LAYER_WIDTH, DIGIT_LAYER_HEIGHT);
   }
   
   if(startup_complete || (enable_startup_animations == 1)){
@@ -554,24 +603,32 @@ static void canvas_update_proc(Layer *this_layer, GContext *ctx) {
 
 static void push_all_digits(){
   
-  // animate the changed digits into place
-  if(digits_changed_during_tick[0]){
-    pull_digit(0);
+  if(startup_complete || (enable_startup_animations == 1)){
+  
+    // animate the changed digits into place
+    if(digits_changed_during_tick[0]){
+      pull_digit(0);
+    }
+    if(digits_changed_during_tick[1]){
+      pull_digit(1);
+    }
+    if(digits_changed_during_tick[2]){
+      pull_digit(2);
+    }
+    if(digits_changed_during_tick[3]){
+      pull_digit(3);
+    }  
+    
   }
-  if(digits_changed_during_tick[1]){
-    pull_digit(1);
+  else{
+    layer_mark_dirty(s_canvas_layer);
+    startup_complete = true;
   }
-  if(digits_changed_during_tick[2]){
-    pull_digit(2);
-  }
-  if(digits_changed_during_tick[3]){
-    pull_digit(3);
-  }  
   
 }
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
- 
+   
   update_time();  // update variables containing time data
   
   push_all_digits();
@@ -791,9 +848,9 @@ static void main_window_load(Window *window){
   s_canvas_layer = layer_create(window_bounds);
   layer_add_child(window_layer, s_canvas_layer);
   
-  GRect start_number_box = GRect(72,-100,55,68);
+  GRect start_number_box = GRect(72,-100, DIGIT_LAYER_WIDTH, DIGIT_LAYER_HEIGHT);
   
-  if(startup_complete || (enable_startup_animations == 1)){
+   if(startup_complete || (enable_startup_animations == 1)){
     //setup boxes wherever
     s_box1_layer = layer_create(start_number_box);
     s_box2_layer = layer_create(start_number_box); 
@@ -801,15 +858,17 @@ static void main_window_load(Window *window){
     s_box4_layer = layer_create(start_number_box); 
   }
   else{
-    GPoint number_starting_points[4] = {{0,0}};
+    //GPoint number_starting_points[4] = {{0,0}};
+    set_origin_point();
+    GPoint number_starting_points[4] = {GPoint(orig_x,orig_y)};
     for (int i=1; i<4; i++){
       number_starting_points[i] = number_point_setup(number_starting_points[0], NUMBER_SPACING, CENTER_SPACING_CONSTANT, i, (slant_direction)*M_PI / 7);
     }
     //setup number boxes at slanted locations
-    s_box1_layer = layer_create(GRect(number_starting_points[0].x,number_starting_points[0].y,55,68));
-    s_box2_layer = layer_create(GRect(number_starting_points[1].x,number_starting_points[1].y,55,68)); 
-    s_box3_layer = layer_create(GRect(number_starting_points[2].x,number_starting_points[2].y,55,68));
-    s_box4_layer = layer_create(GRect(number_starting_points[3].x,number_starting_points[3].y,55,68)); 
+    s_box1_layer = layer_create(GRect(number_starting_points[0].x,number_starting_points[0].y, DIGIT_LAYER_WIDTH, DIGIT_LAYER_HEIGHT));
+    s_box2_layer = layer_create(GRect(number_starting_points[1].x,number_starting_points[1].y, DIGIT_LAYER_WIDTH, DIGIT_LAYER_HEIGHT)); 
+    s_box3_layer = layer_create(GRect(number_starting_points[2].x,number_starting_points[2].y, DIGIT_LAYER_WIDTH, DIGIT_LAYER_HEIGHT));
+    s_box4_layer = layer_create(GRect(number_starting_points[3].x,number_starting_points[3].y, DIGIT_LAYER_WIDTH, DIGIT_LAYER_HEIGHT)); 
   }
  
   //s_box1_layer = layer_create(start_number_box); 
@@ -857,6 +916,8 @@ static void init(void){     // set up layers/windows
   startup_complete = false;
   //enable_startup_animations = 1;
   
+  update_time();
+  
     //set up initial gpaths
   s_number1_path = gpath_create(time_digit_info((int)floor(currentHour / 10)));
   s_number2_path = gpath_create(time_digit_info(currentHour % 10));
@@ -868,8 +929,6 @@ static void init(void){     // set up layers/windows
   
   s_monthday1_path = NULL;
   s_monthday2_path = NULL;
-  
-  update_time();
   
   is24hr = clock_is_24h_style();
   
