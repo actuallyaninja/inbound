@@ -4,7 +4,7 @@ Pebble.addEventListener('ready', function() {
 
 Pebble.addEventListener('showConfiguration', function() {
   //var url = 'http://firstwebappcsharp.azurewebsites.net/';
-  var url = 'http://actuallyaninja.github.io/djangles-config/v1/?platform=';
+  var url = 'http://actuallyaninja.github.io/djangles-config/v2/?platform=';
   
   if(Pebble.getActiveWatchInfo) {
     var myPlatform = Pebble.getActiveWatchInfo().platform; 
@@ -24,7 +24,8 @@ Pebble.addEventListener('webviewclosed', function(e) {
 
     Pebble.sendAppMessage({
       slantDirectionNumber: configData.slantDirectionNumber,
-      bgPatternRadioButton: configData.bgPatternRadioButton
+      bgPatternRadioButton: configData.bgPatternRadioButton,
+      startupAnimationEnabled: configData.startupAnimationEnabled
     }, function() {
       console.log('Send successful!');
     }, function() {

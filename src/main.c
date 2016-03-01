@@ -1,14 +1,13 @@
 #include <pebble.h>
 #include <shapes.h>
 #include <math.h>
-#include <extramath.h>
 #include <positioning.h>
 #include <chevrons.h>
 
+
 #define KEY_SLANT_DIR_NUM 0
-//#define KEY_BG_IMAGE 1
-//#define KEY_BG_COLOR 2 //not used anymore
 #define KEY_BG_PATTERN 1
+#define KEY_ENABLE_STARTUP_ANIM 2
 
 static GPath *s_number1_path;
 static GPath *s_number2_path;
@@ -42,8 +41,11 @@ static char month_and_weekday_buffer[50];
 //static char abbrv_month[4], day_of_month[3], full_weekday[10];
 
 int slant_direction;  // 1 is slanted down to right, -1 is slanted up to right
-int32_t bg_image_selection;
+//int32_t bg_image_selection;
 int32_t bg_pattern_selection;
+int32_t enable_startup_animations;
+
+bool startup_complete;
 
 bool digits_changed_during_tick[4] = {0,0,0,0};
 int8_t anim_delays[4] = {0,0,0,0};
@@ -123,8 +125,17 @@ static void pull_digit(int which_digit){ // which_digit is one of {0,1,2,3}
   
   int x = which_digit; // which_digit should be one of: {0,1,2,3}
   
-  int anim_duration = 600;
+  int anim_duration = 0; //600;
   int initial_delay = 0;
+  if(startup_complete || (enable_startup_animations == 1)){
+      anim_duration = 600;
+  }
+  else {
+    anim_duration = 0;
+    //initial_delay = 100;
+  }
+  
+  
     
   // move the shapes off the screen to the top right if slanted right, top left if slanted left
   if(slant_direction == 1){
@@ -194,8 +205,20 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
   
   int x = which_digit; // which_digit should be one of: {0,1,2,3}
   
-  int anim_duration = 480;
+  int anim_duration = 0; //480;
+  int delay_btw_digits = 0; //50;
   int initial_delay = 0;
+  if(startup_complete || (enable_startup_animations == 1)){
+    anim_duration = 480;
+    delay_btw_digits = 50;
+  }
+  else{
+    anim_duration = 0;
+    delay_btw_digits = 0;
+    initial_delay = 100;
+  }
+  
+  
   
   // x and y spacing
 
@@ -263,7 +286,7 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
       
       s_dropin1_animation = property_animation_create_layer_frame(s_box1_layer, &start, &finish);
       animation_set_duration((Animation*)s_dropin1_animation, anim_duration);
-      animation_set_delay((Animation*)s_dropin1_animation, 0);    
+      animation_set_delay((Animation*)s_dropin1_animation, initial_delay);    
       animation_set_curve((Animation*)s_dropin1_animation, AnimationCurveEaseOut);
       animation_schedule((Animation*)s_dropin1_animation);
       break;
@@ -275,8 +298,8 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
         s_number2_path = gpath_create(time_digit_info(currentHour % 10));
     
         s_dropin2_animation = property_animation_create_layer_frame(s_box2_layer, &start, &finish);
-        animation_set_duration((Animation*)s_dropin2_animation, anim_duration+(x*50));
-        animation_set_delay((Animation*)s_dropin2_animation, initial_delay+(x*100));
+        animation_set_duration((Animation*)s_dropin2_animation, anim_duration+(x*delay_btw_digits));
+        animation_set_delay((Animation*)s_dropin2_animation, initial_delay+(x*delay_btw_digits*2));
         animation_set_curve((Animation*)s_dropin2_animation, AnimationCurveEaseOut);
         animation_schedule((Animation*)s_dropin2_animation);
         break;
@@ -288,8 +311,8 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
         s_number3_path = gpath_create(time_digit_info((int)floor(currentMinute / 10)));
     
         s_dropin3_animation = property_animation_create_layer_frame(s_box3_layer, &start, &finish);
-        animation_set_duration((Animation*)s_dropin3_animation, anim_duration+(x*50));
-        animation_set_delay((Animation*)s_dropin3_animation, initial_delay+(x*100));
+        animation_set_duration((Animation*)s_dropin3_animation, anim_duration+(x*delay_btw_digits));
+        animation_set_delay((Animation*)s_dropin3_animation, initial_delay+(x*delay_btw_digits*2));
         animation_set_curve((Animation*)s_dropin3_animation, AnimationCurveEaseOut);
         animation_schedule((Animation*)s_dropin3_animation);
         break;
@@ -302,15 +325,15 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
         s_number4_path = gpath_create(time_digit_info(currentMinute % 10));    
     
         s_dropin4_animation = property_animation_create_layer_frame(s_box4_layer, &start, &finish);
-        animation_set_duration((Animation*)s_dropin4_animation, anim_duration+(x*50));
-        animation_set_delay((Animation*)s_dropin4_animation,initial_delay+(x*100));
+        animation_set_duration((Animation*)s_dropin4_animation, anim_duration+(x*delay_btw_digits));
+        animation_set_delay((Animation*)s_dropin4_animation,initial_delay+(x*delay_btw_digits*2));
         animation_set_curve((Animation*)s_dropin4_animation, AnimationCurveEaseOut);  
         animation_schedule((Animation*)s_dropin4_animation);
         break;
       default:
         break;
   }
-  
+  if(which_digit == 3){startup_complete = true;}
 }
   
 static void clean_up_number_gpaths(){
@@ -553,7 +576,7 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   digits_changed_during_tick[1] = false;
   digits_changed_during_tick[2] = false;
   digits_changed_during_tick[3] = false;
-    
+     
 }
 
 static void box1_update_proc(Layer *this_layer, GContext *ctx) {
@@ -663,6 +686,7 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   
   Tuple *slant_dir_num_t = dict_find(iter, KEY_SLANT_DIR_NUM);
   Tuple *bg_pattern_t = dict_find(iter, KEY_BG_PATTERN);
+  Tuple *startup_anim_t = dict_find(iter, KEY_ENABLE_STARTUP_ANIM);
  
   int old_slant_direction = slant_direction;
 
@@ -706,6 +730,12 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   
   set_color_palette(new_bg_pattern_selection);
   layer_mark_dirty(s_canvas_layer);
+  
+  if (startup_anim_t) {
+    enable_startup_animations = startup_anim_t->value->int8;
+    persist_write_int(KEY_ENABLE_STARTUP_ANIM, enable_startup_animations);
+
+  }
     
 }
 
@@ -732,6 +762,14 @@ static void main_window_load(Window *window){
     bg_pattern_selection = 1;
   }  // default to 1 if no persistent storage exists yet
   
+  //set animation preference from persistent storage
+  if(persist_exists(KEY_ENABLE_STARTUP_ANIM)){
+    enable_startup_animations = persist_read_bool(KEY_ENABLE_STARTUP_ANIM);
+  } else {
+    enable_startup_animations = true;
+  }
+    
+  }
   
   // Create Layers
   
@@ -793,6 +831,9 @@ static void init(void){     // set up layers/windows
     
   number_color = GColorWhite;
   shadow_color = GColorBlack;
+  
+  startup_complete = false;
+  //enable_startup_animations = 1;
   
     //set up initial gpaths
   s_number1_path = gpath_create(time_digit_info((int)floor(currentHour / 10)));
