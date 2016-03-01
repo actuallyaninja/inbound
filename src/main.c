@@ -48,6 +48,7 @@ bool startup_complete;
 bool digits_changed_during_tick[4] = {0,0,0,0};
 int8_t anim_delays[4] = {0,0,0,0};
 
+int orig_x, orig_y; // used for first digit origin point
 
 #define ROTATION_ANGLE (TRIG_MAX_ANGLE*0.073)
 
@@ -205,18 +206,7 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
   
   int anim_duration = 0; //480;
   int delay_btw_digits = 0; //50;
-  int initial_delay = 0;
-  if(startup_complete || (enable_startup_animations == 1)){
-    anim_duration = 480;
-    delay_btw_digits = 50;
-  }
-  else{
-    anim_duration = 0;
-    delay_btw_digits = 0;
-    initial_delay = 100;
-  }
-  
-  
+  int initial_delay = 0;  
   
   // x and y spacing
 
@@ -255,6 +245,10 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
     }
     
   }
+  
+  orig_x = orig.x;
+  orig_y = orig.y;
+  
   GPoint digit_start_point = GPoint(0,0);
   digit_start_point = number_point_setup(orig, NUMBER_SPACING, CENTER_SPACE_WIDTH, x, (slant_direction)*M_PI / 7);
   x_offset = digit_start_point.x;
@@ -264,14 +258,27 @@ static void drop_digit(int which_digit){ // which_digit is one of {0,1,2,3}
   x_offset += 18;
   y_offset += 6;
   #endif
-
-  //start the shapes off the screen to the bottom left if slanted left, bottom right if slanted right
+  
+  finish = GRect(x_offset, y_offset, 55, 68);
+    //start the shapes off the screen to the bottom left if slanted left, bottom right if slanted right
   if(slant_direction == 1){
     start = GRect(-55, 185, 55, 68);
   }else{
     start = GRect(185, 185, 55, 68);
   }
-  finish = GRect(x_offset, y_offset, 55, 68);
+  
+  if(startup_complete || (enable_startup_animations == 1)){
+    anim_duration = 480;
+    delay_btw_digits = 50;
+  }
+  else{
+    anim_duration = 0;
+    delay_btw_digits = 0;
+    initial_delay = 0;
+    start = finish;
+  }
+
+  
      
   // configure and schedule animations
   switch (which_digit){
@@ -766,7 +773,7 @@ static void main_window_load(Window *window){
   } else {
     enable_startup_animations = true;
   }
-  
+    
   // Create Layers
   
   Layer *window_layer = window_get_root_layer(window);
@@ -785,17 +792,36 @@ static void main_window_load(Window *window){
   layer_add_child(window_layer, s_canvas_layer);
   
   GRect start_number_box = GRect(72,-100,55,68);
+  
+  if(startup_complete || (enable_startup_animations == 1)){
+    //setup boxes wherever
+    s_box1_layer = layer_create(start_number_box);
+    s_box2_layer = layer_create(start_number_box); 
+    s_box3_layer = layer_create(start_number_box);
+    s_box4_layer = layer_create(start_number_box); 
+  }
+  else{
+    GPoint number_starting_points[4] = {{0,0}};
+    for (int i=1; i<4; i++){
+      number_starting_points[i] = number_point_setup(number_starting_points[0], NUMBER_SPACING, CENTER_SPACING_CONSTANT, i, (slant_direction)*M_PI / 7);
+    }
+    //setup number boxes at slanted locations
+    s_box1_layer = layer_create(GRect(number_starting_points[0].x,number_starting_points[0].y,55,68));
+    s_box2_layer = layer_create(GRect(number_starting_points[1].x,number_starting_points[1].y,55,68)); 
+    s_box3_layer = layer_create(GRect(number_starting_points[2].x,number_starting_points[2].y,55,68));
+    s_box4_layer = layer_create(GRect(number_starting_points[3].x,number_starting_points[3].y,55,68)); 
+  }
  
-  s_box1_layer = layer_create(start_number_box); 
+  //s_box1_layer = layer_create(start_number_box); 
   layer_add_child(window_layer, s_box1_layer);
   
-  s_box2_layer = layer_create(start_number_box); 
+  //s_box2_layer = layer_create(start_number_box); 
   layer_add_child(window_layer, s_box2_layer);
   
-  s_box3_layer = layer_create(start_number_box); 
+  //s_box3_layer = layer_create(start_number_box); 
   layer_add_child(window_layer, s_box3_layer);
   
-  s_box4_layer = layer_create(start_number_box);
+  //s_box4_layer = layer_create(start_number_box);
   layer_add_child(window_layer, s_box4_layer);
   
   window_set_background_color(s_main_window, GColorBlack);
@@ -861,12 +887,12 @@ static void init(void){     // set up layers/windows
   digits_changed_during_tick[3] = true;
   
   tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
-  
+  /*
   GPoint number_starting_points[4] = {{0,0}};
   for (int i=1; i<4; i++){
     number_starting_points[i] = number_point_setup(number_starting_points[0], NUMBER_SPACING, CENTER_SPACING_CONSTANT, i, (slant_direction)*M_PI / 7);
   }
-  
+  */
   app_message_register_inbox_received(inbox_received_handler);
   app_message_open(256, 256);
   
