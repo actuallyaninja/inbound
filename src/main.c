@@ -441,7 +441,7 @@ static void update_time() {
   s_monthday1_path = gpath_create(ptr_day_digit_1);
   s_monthday2_path = gpath_create(ptr_day_digit_2);
   
-  layer_mark_dirty(s_canvas_layer);
+  //layer_mark_dirty(s_canvas_layer);
   
 }
 
