@@ -1,6 +1,7 @@
 {
     "appKeys": {
         "bgPatternRadioButton": 1,
+        "showDate": 3,
         "slantDirectionNumber": 0,
         "startupAnimationEnabled": 2
     },

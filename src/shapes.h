@@ -61,7 +61,8 @@ static const GPathInfo SIX_PATH = {
 //number 7:
 static const GPathInfo SEVEN_PATH = {
   6,
-  (GPoint []) {{0,0},{24,0},{14,59},{5,59},{13,11},{0,11}}
+  //(GPoint []) {{0,0},{24,0},{14,59},{5,59},{13,11},{0,11}}
+  (GPoint []) {{0,0},{24,0},{24,59},{15,59},{15,11},{0,11}}
 };
 
 //number 8:
@@ -164,7 +165,8 @@ static const GPathInfo SIX_BOXY = {
 
 static const GPathInfo SEVEN_BOXY = {
   6,
-  (GPoint[]) {{0,0},{25,0},{21,35},{11,35},{15,9},{0,9}}
+  //(GPoint[]) {{0,0},{25,0},{21,35},{11,35},{15,9},{0,9}}
+  (GPoint[]) {{0,0},{25,0},{25,35},{16,35},{16,9},{0,9}}
 };
 
 static const GPathInfo EIGHT_BOXY = {

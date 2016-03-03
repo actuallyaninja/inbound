@@ -7,6 +7,7 @@
 #define KEY_SLANT_DIR_NUM 0
 #define KEY_BG_PATTERN 1
 #define KEY_ENABLE_STARTUP_ANIM 2
+#define KEY_SHOW_DATE 3
 
 #define DIGIT_LAYER_WIDTH 55
 #define DIGIT_LAYER_HEIGHT 68
@@ -45,6 +46,7 @@ static char month_and_weekday_buffer[50];
 int slant_direction;  // 1 is slanted down to right, -1 is slanted up to right
 int32_t bg_pattern_selection;
 int32_t enable_startup_animations;
+bool show_date;
 
 bool startup_complete;
 
@@ -238,8 +240,15 @@ static void set_origin_point(){
   orig_y = orig.y;
   
   #ifdef PBL_ROUND
+  if(!show_date){
+    orig_y += 12;
+  }
   orig_x += 18;
   orig_y += 6;
+  #else
+  if(!show_date){
+    orig_y += 9;
+  }
   #endif
 }
 
@@ -384,8 +393,8 @@ static void update_time() {
   
 
   //for testing
-  //currentHour = 12;
-  //currentMinute = 34;
+  //currentHour = 20;
+  //currentMinute = 47;
   
   
   // after this point, we can tell which digits changed
@@ -417,7 +426,7 @@ static void update_time() {
   currentMonthDay = tick_time->tm_mday;
   
   //testing:
-  //currentMonthDay = 15;
+  //currentMonthDay = 17;
   
   if(currentMonthDay > 9){
     strftime(month_and_weekday_buffer,sizeof(month_and_weekday_buffer),"%b    %n%A",tick_time);
@@ -529,35 +538,37 @@ static void canvas_update_proc(Layer *this_layer, GContext *ctx) {
   }
      
   
-  /*  DRAW DATE DIGITS */
-  
-  gpath_rotate_to(s_monthday1_path, ROTATION_ANGLE*slant_direction);
-  gpath_rotate_to(s_monthday2_path, ROTATION_ANGLE*slant_direction);
-  
-  // draw drop shadows
-  graphics_context_set_fill_color(ctx, shadow_color);
-  
-  // draw drop shadow 1
-  gpath_move_to(s_monthday1_path,GPoint(MONTHDAY_X_OFFSET_1 + DROP_SHADOW_X_OFFSET, MONTHDAY_Y_OFFSET_1 + MD_DROP_SHADOW_Y_OFFSET));  
-  gpath_draw_filled(ctx,s_monthday1_path);
-  // draw drop shadow 2
-  gpath_move_to(s_monthday2_path,GPoint(MONTHDAY_X_OFFSET_2 + DROP_SHADOW_X_OFFSET, MONTHDAY_Y_OFFSET_2 + MD_DROP_SHADOW_Y_OFFSET));  
-  gpath_draw_filled(ctx,s_monthday2_path);
-  
-  
-  // draw day of month digits
+  if(show_date){
+    /*  DRAW DATE DIGITS */
     
-  //graphics_context_set_fill_color(ctx, number_color);
-  graphics_context_set_fill_color(ctx, number_color);
-  
-  // move foreground number 1 into position
-  gpath_move_to(s_monthday1_path,GPoint(MONTHDAY_X_OFFSET_1, MONTHDAY_Y_OFFSET_1));  
-  // move foreground number 2 into position
-  gpath_move_to(s_monthday2_path,GPoint(MONTHDAY_X_OFFSET_2, MONTHDAY_Y_OFFSET_2));  
-  
-  // draw the foreground numbers
-  gpath_draw_filled(ctx,s_monthday1_path);
-  gpath_draw_filled(ctx,s_monthday2_path);
+    gpath_rotate_to(s_monthday1_path, ROTATION_ANGLE*slant_direction);
+    gpath_rotate_to(s_monthday2_path, ROTATION_ANGLE*slant_direction);
+    
+    // draw drop shadows
+    graphics_context_set_fill_color(ctx, shadow_color);
+    
+    // draw drop shadow 1
+    gpath_move_to(s_monthday1_path,GPoint(MONTHDAY_X_OFFSET_1 + DROP_SHADOW_X_OFFSET, MONTHDAY_Y_OFFSET_1 + MD_DROP_SHADOW_Y_OFFSET));  
+    gpath_draw_filled(ctx,s_monthday1_path);
+    // draw drop shadow 2
+    gpath_move_to(s_monthday2_path,GPoint(MONTHDAY_X_OFFSET_2 + DROP_SHADOW_X_OFFSET, MONTHDAY_Y_OFFSET_2 + MD_DROP_SHADOW_Y_OFFSET));  
+    gpath_draw_filled(ctx,s_monthday2_path);
+    
+    
+    // draw day of month digits
+      
+    //graphics_context_set_fill_color(ctx, number_color);
+    graphics_context_set_fill_color(ctx, number_color);
+    
+    // move foreground number 1 into position
+    gpath_move_to(s_monthday1_path,GPoint(MONTHDAY_X_OFFSET_1, MONTHDAY_Y_OFFSET_1));  
+    // move foreground number 2 into position
+    gpath_move_to(s_monthday2_path,GPoint(MONTHDAY_X_OFFSET_2, MONTHDAY_Y_OFFSET_2));  
+    
+    // draw the foreground numbers
+    gpath_draw_filled(ctx,s_monthday1_path);
+    gpath_draw_filled(ctx,s_monthday2_path);
+  }
  
 }
 
@@ -704,11 +715,27 @@ static void set_color_palette(int color_scheme){
   }
 }
 
+static void replace_all_digits(){
+    digits_changed_during_tick[0] = true;
+    digits_changed_during_tick[1] = true;
+    digits_changed_during_tick[2] = true;
+    digits_changed_during_tick[3] = true;
+  
+    push_all_digits();
+    layer_mark_dirty(s_canvas_layer);
+  
+    digits_changed_during_tick[0] = false;
+    digits_changed_during_tick[1] = false;
+    digits_changed_during_tick[2] = false;
+    digits_changed_during_tick[3] = false;
+}
+
 static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   
   Tuple *slant_dir_num_t = dict_find(iter, KEY_SLANT_DIR_NUM);
   Tuple *bg_pattern_t = dict_find(iter, KEY_BG_PATTERN);
   Tuple *startup_anim_t = dict_find(iter, KEY_ENABLE_STARTUP_ANIM);
+  Tuple *show_date_t = dict_find(iter, KEY_SHOW_DATE);
  
   int old_slant_direction = slant_direction;
 
@@ -730,6 +757,8 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   update_time(); // added 12/27----
   
   if (slant_direction != old_slant_direction){
+    replace_all_digits();
+    /*
     digits_changed_during_tick[0] = true;
     digits_changed_during_tick[1] = true;
     digits_changed_during_tick[2] = true;
@@ -742,6 +771,7 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     digits_changed_during_tick[1] = false;
     digits_changed_during_tick[2] = false;
     digits_changed_during_tick[3] = false;
+    */
   }
   
   // set the value of big image selection from the dictionary 
@@ -757,6 +787,15 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     enable_startup_animations = startup_anim_t->value->int8;
     persist_write_int(KEY_ENABLE_STARTUP_ANIM, enable_startup_animations);
 
+  }
+  
+  if(show_date_t){
+    bool prev_show_date = show_date;
+    show_date = show_date_t->value->int8;
+    persist_write_int(KEY_SHOW_DATE, show_date);
+    if(prev_show_date != show_date){
+      replace_all_digits();
+    }
   }
     
 }
@@ -790,6 +829,14 @@ static void main_window_load(Window *window){
   } else {
     enable_startup_animations = true;
   }
+  
+    //set date display preference from persistent storage
+  if(persist_exists(KEY_SHOW_DATE)){
+    show_date = persist_read_bool(KEY_SHOW_DATE);
+  } else {
+    show_date = true;
+  }
+  APP_LOG(APP_LOG_LEVEL_DEBUG,"show_date: %d",(int)show_date);
     
   // Create Layers
   

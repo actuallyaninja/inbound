@@ -25,7 +25,8 @@ Pebble.addEventListener('webviewclosed', function(e) {
     Pebble.sendAppMessage({
       slantDirectionNumber: configData.slantDirectionNumber,
       bgPatternRadioButton: configData.bgPatternRadioButton,
-      startupAnimationEnabled: configData.startupAnimationEnabled
+      startupAnimationEnabled: configData.startupAnimationEnabled,
+      showDate: configData.showDate
     }, function() {
       console.log('Send successful!');
     }, function() {
