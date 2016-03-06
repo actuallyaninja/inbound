@@ -579,16 +579,28 @@ static void push_all_digits(){
     // animate the changed digits into place
     if(digits_changed_during_tick[0]){
       pull_digit(0);
-    }
-    if(digits_changed_during_tick[1]){
       pull_digit(1);
-    }
-    if(digits_changed_during_tick[2]){
       pull_digit(2);
-    }
-    if(digits_changed_during_tick[3]){
       pull_digit(3);
-    }  
+    }
+    else{
+      if(digits_changed_during_tick[1]){
+        pull_digit(1);
+        pull_digit(2);
+        pull_digit(3);
+      }
+      else{
+        if(digits_changed_during_tick[2]){
+          pull_digit(2);
+          pull_digit(3);
+        }
+        else{
+          if(digits_changed_during_tick[3]){
+            pull_digit(3);
+          }
+        }
+      }
+  }
     
   }
   else{
@@ -758,20 +770,6 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   
   if (slant_direction != old_slant_direction){
     replace_all_digits();
-    /*
-    digits_changed_during_tick[0] = true;
-    digits_changed_during_tick[1] = true;
-    digits_changed_during_tick[2] = true;
-    digits_changed_during_tick[3] = true;
-  
-    push_all_digits();
-    layer_mark_dirty(s_canvas_layer);
-  
-    digits_changed_during_tick[0] = false;
-    digits_changed_during_tick[1] = false;
-    digits_changed_during_tick[2] = false;
-    digits_changed_during_tick[3] = false;
-    */
   }
   
   // set the value of big image selection from the dictionary 
@@ -836,7 +834,6 @@ static void main_window_load(Window *window){
   } else {
     show_date = true;
   }
-  APP_LOG(APP_LOG_LEVEL_DEBUG,"show_date: %d",(int)show_date);
     
   // Create Layers
   
@@ -953,12 +950,7 @@ static void init(void){     // set up layers/windows
   digits_changed_during_tick[3] = true;
   
   tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
-  /*
-  GPoint number_starting_points[4] = {{0,0}};
-  for (int i=1; i<4; i++){
-    number_starting_points[i] = number_point_setup(number_starting_points[0], NUMBER_SPACING, CENTER_SPACING_CONSTANT, i, (slant_direction)*M_PI / 7);
-  }
-  */
+  
   app_message_register_inbox_received(inbox_received_handler);
   app_message_open(256, 256);
   
