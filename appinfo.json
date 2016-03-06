@@ -9,7 +9,7 @@
         "configurable"
     ],
     "companyName": "Djingaling Ind.",
-    "enableMultiJS": false,
+    "enableMultiJS": true,
     "longName": "Djangles",
     "projectType": "native",
     "resources": {

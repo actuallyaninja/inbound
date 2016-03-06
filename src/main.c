@@ -241,7 +241,7 @@ static void set_origin_point(){
   
   #ifdef PBL_ROUND
   if(!show_date){
-    orig_y += 12;
+    orig_y += 8;
   }
   orig_x += 18;
   orig_y += 6;
@@ -501,6 +501,8 @@ static void set_day_digit2_pathinfo_from_existing(GPathInfo existing2, int targe
 
 static void canvas_update_proc(Layer *this_layer, GContext *ctx) {
  
+  //APP_LOG(APP_LOG_LEVEL_DEBUG,"canvas_update_proc starting - show_date: %d",(int)show_date);
+  
   /* DRAW CHEVRONS */
     
   // option for blank background
@@ -538,7 +540,7 @@ static void canvas_update_proc(Layer *this_layer, GContext *ctx) {
   }
      
   
-  if(show_date){
+  if(show_date==true){
     /*  DRAW DATE DIGITS */
     
     gpath_rotate_to(s_monthday1_path, ROTATION_ANGLE*slant_direction);
@@ -919,6 +921,8 @@ static void init(void){     // set up layers/windows
   
   startup_complete = false;
   //enable_startup_animations = 1;
+  
+  show_date = true;
   
   update_time();
   
