@@ -69,16 +69,33 @@ int orig_x, orig_y; // used for first digit origin point
 
 #ifdef PBL_ROUND
   #define SCREEN_CENTER_HORIZ 90
-  #define MONTHDAY_X_OFFSET_1 (slant_direction == 1 ? 57 : 78 )
-  #define MONTHDAY_Y_OFFSET_1 (slant_direction == 1 ? 118 : 136 )
-  #define MONTHDAY_X_OFFSET_2 (slant_direction == 1 ? 82 : 103 )  
-  #define MONTHDAY_Y_OFFSET_2 (slant_direction == 1 ? 130 : 125 )
+  
+  //#define MONTHDAY_X_OFFSET_1 (slant_direction == 1 ? 57 : 78 )  
+  #define MONTHDAY_X_OFFSET_1 (slant_direction == 1 ? 47 : 89 )
+
+ // #define MONTHDAY_Y_OFFSET_1 (slant_direction == 1 ? 118 : 136 )
+  #define MONTHDAY_Y_OFFSET_1 (slant_direction == 1 ? 127 : 146 )
+
+  //#define MONTHDAY_X_OFFSET_2 (slant_direction == 1 ? 82 : 103 )  
+  #define MONTHDAY_X_OFFSET_2 (slant_direction == 1 ? 68 : 110 )
+
+  // #define MONTHDAY_Y_OFFSET_2 (slant_direction == 1 ? 130 : 125 )
+  #define MONTHDAY_Y_OFFSET_2 (slant_direction == 1 ? 137 : 136 )
+
 #else
   #define SCREEN_CENTER_HORIZ 72
-  #define MONTHDAY_X_OFFSET_1 (slant_direction == 1 ? 41 : 59 )
-  #define MONTHDAY_Y_OFFSET_1 (slant_direction == 1 ? 113 : 133 )
-  #define MONTHDAY_X_OFFSET_2 (slant_direction == 1 ? 64 : 82 )  
-  #define MONTHDAY_Y_OFFSET_2 (slant_direction == 1 ? 124 : 122 )
+ 
+  //#define MONTHDAY_X_OFFSET_1 (slant_direction == 1 ? 41 : 59 )
+  #define MONTHDAY_X_OFFSET_1 (slant_direction == 1 ? 31 : 70 )
+
+ // #define MONTHDAY_Y_OFFSET_1 (slant_direction == 1 ? 113 : 133 ) 
+  #define MONTHDAY_Y_OFFSET_1 (slant_direction == 1 ? 120 : 139 )
+
+  //#define MONTHDAY_X_OFFSET_2 (slant_direction == 1 ? 64 : 82 )  
+  #define MONTHDAY_X_OFFSET_2 (slant_direction == 1 ? 54 : 92 )
+
+  //#define MONTHDAY_Y_OFFSET_2 (slant_direction == 1 ? 124 : 122 )
+  #define MONTHDAY_Y_OFFSET_2 (slant_direction == 1 ? 131 : 128 )
 #endif
 
 GColor background_color;
@@ -212,7 +229,7 @@ static void set_origin_point(){
         orig = GPoint(-5,26);
       } else {
         // hours 20 to 23
-        orig = GPoint(0,26);        
+        orig = GPoint(0,26);  
       }
     } else{                   
       // for 3 digits
@@ -241,14 +258,16 @@ static void set_origin_point(){
   
   #ifdef PBL_ROUND
   if(!show_date){
-    orig_y += 8;
+    //orig_y += 8;
   }
   orig_x += 18;
-  orig_y += 6;
+//  orig_y += 6;
+  orig_y += 14;
   #else
   if(!show_date){
-    orig_y += 9;
+    orig_y += 0;
   }
+  orig_y += 7;
   #endif
 }
 
@@ -441,8 +460,10 @@ static void update_time() {
   */
   
   //use currentMonthDay to set monthday path values
-  set_day_digit1_pathinfo_from_existing(time_digit_info_value((int)(currentMonthDay/10)),22,30);
-  set_day_digit2_pathinfo_from_existing(time_digit_info_value((int)(currentMonthDay%10)),22,30);
+  //set_day_digit1_pathinfo_from_existing(time_digit_info_value((int)(currentMonthDay/10)),22,30);
+  //set_day_digit2_pathinfo_from_existing(time_digit_info_value((int)(currentMonthDay%10)),22,30);
+  set_day_digit1_pathinfo_from_existing(time_digit_info_value((int)(currentMonthDay/10)),16,22);
+  set_day_digit2_pathinfo_from_existing(time_digit_info_value((int)(currentMonthDay%10)),16,22);
   
   if (s_monthday1_path){  gpath_destroy(s_monthday1_path); };
   if (s_monthday2_path){  gpath_destroy(s_monthday2_path); };
@@ -504,6 +525,8 @@ static void canvas_update_proc(Layer *this_layer, GContext *ctx) {
   //APP_LOG(APP_LOG_LEVEL_DEBUG,"canvas_update_proc starting - show_date: %d",(int)show_date);
   
   /* DRAW CHEVRONS */
+  //int chevron_top_offset = 13;
+  int chevron_top_offset = 23;
     
   // option for blank background
   if(bg_pattern_selection != 0){
@@ -516,20 +539,20 @@ static void canvas_update_proc(Layer *this_layer, GContext *ctx) {
         
         #ifdef PBL_ROUND
         if (i < NUM_PALETTE_COLORS - 1){
-           gpath_move_to(s_chevron_path, GPoint(-1,29*(i-1)-13));
+           gpath_move_to(s_chevron_path, GPoint(-1,(CHEVRON_HEIGHT-1)*(i-1)-chevron_top_offset));
            gpath_draw_filled(ctx, s_chevron_path);
          }
         #else
         if (i < NUM_PALETTE_COLORS - 1){
-              gpath_move_to(s_chevron_path, GPoint(-1,29*(i-1)-13));
+              gpath_move_to(s_chevron_path, GPoint(-1,(CHEVRON_HEIGHT-1)*(i-1)-chevron_top_offset));
               gpath_draw_filled(ctx, s_chevron_path);
         }
         
         #ifndef PBL_COLOR  // draw the bottom two chevrons to cover the lower area
         if(i == (NUM_PALETTE_COLORS - 1)){
-          gpath_move_to(s_chevron_path, GPoint(-1,29*(i-1)-13));
+          gpath_move_to(s_chevron_path, GPoint(-1,(CHEVRON_HEIGHT-1)*(i-1)-chevron_top_offset));
           gpath_draw_filled(ctx, s_chevron_path);
-          gpath_move_to(s_chevron_path, GPoint(-1,29*(i)-13));
+          gpath_move_to(s_chevron_path, GPoint(-1,(CHEVRON_HEIGHT-1)*(i)-chevron_top_offset));
           gpath_draw_filled(ctx, s_chevron_path);
         }
         #endif

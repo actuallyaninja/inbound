@@ -4,6 +4,8 @@
 
 #define NUM_PALETTE_COLORS 7
 #define NUM_PALETTES 8
+//#define CHEVRON_HEIGHT 30
+#define CHEVRON_HEIGHT 32
 #ifdef PBL_ROUND
 #define SCREEN_WIDTH 180
 #define SCREEN_HEIGHT 180
@@ -19,9 +21,11 @@
 static const GPathInfo CHEVRON = {
   6,
   #ifdef PBL_ROUND
-  (GPoint[]) {{0,0},{0,30},{90,72},{181,30},{181,0},{90,42}}
+  //(GPoint[]) {{0,0},{0,30},{90,72},{181,30},{181,0},{90,42}}
+  (GPoint[]) {{0,0},{0,32},{90,74},{181,32},{181,0},{90,42}}
   #else
-  (GPoint[]) {{0,0},{0,30},{72,64},{145,30},{145,0},{72,34}}
+  //(GPoint[]) {{0,0},{0,30},{72,64},{145,30},{145,0},{72,34}}
+  (GPoint[]) {{0,0},{0,32},{72,66},{145,32},{145,0},{72,34}}
   #endif
 };
 
