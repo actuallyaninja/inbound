@@ -599,7 +599,7 @@ static void canvas_update_proc(Layer *this_layer, GContext *ctx) {
 
 static void push_all_digits(){
   
-  if(startup_complete || (enable_startup_animations == 1)){
+  if(startup_complete){
   
     // animate the changed digits into place
     if(digits_changed_during_tick[0]){
@@ -629,6 +629,14 @@ static void push_all_digits(){
     
   }
   else{
+    if (enable_startup_animations == 1){
+      if(((int)floor(currentHour / 10)) != 0){
+        drop_digit(0);
+      }
+      drop_digit(1);
+      drop_digit(2);
+      drop_digit(3);
+    }
     layer_mark_dirty(s_canvas_layer);
     startup_complete = true;
   }
@@ -813,12 +821,14 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   }
   
   if(show_date_t){
-    bool prev_show_date = show_date;
+    //bool prev_show_date = show_date;
     show_date = show_date_t->value->int8;
     persist_write_int(KEY_SHOW_DATE, show_date);
+    /*
     if(prev_show_date != show_date){
       replace_all_digits();
     }
+    */
   }
     
 }
@@ -958,8 +968,8 @@ static void init(void){     // set up layers/windows
   //chevron
   s_chevron_path = gpath_create(&CHEVRON);
   
-  s_monthday1_path = NULL;
-  s_monthday2_path = NULL;
+  //s_monthday1_path = NULL;
+  //s_monthday2_path = NULL;
   
   is24hr = clock_is_24h_style();
   
