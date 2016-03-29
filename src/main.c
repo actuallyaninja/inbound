@@ -11,6 +11,7 @@
 
 #define DIGIT_LAYER_WIDTH 55
 #define DIGIT_LAYER_HEIGHT 68
+#define NUM_BOXY_DIGIT_POINTS 14
 
 static GPath *s_number1_path;
 static GPath *s_number2_path;
@@ -70,31 +71,23 @@ int orig_x, orig_y; // used for first digit origin point
 #ifdef PBL_ROUND
   #define SCREEN_CENTER_HORIZ 90
   
-  //#define MONTHDAY_X_OFFSET_1 (slant_direction == 1 ? 57 : 78 )  
   #define MONTHDAY_X_OFFSET_1 (slant_direction == 1 ? 47 : 89 )
 
- // #define MONTHDAY_Y_OFFSET_1 (slant_direction == 1 ? 118 : 136 )
   #define MONTHDAY_Y_OFFSET_1 (slant_direction == 1 ? 127 : 146 )
 
-  //#define MONTHDAY_X_OFFSET_2 (slant_direction == 1 ? 82 : 103 )  
   #define MONTHDAY_X_OFFSET_2 (slant_direction == 1 ? 68 : 110 )
 
-  // #define MONTHDAY_Y_OFFSET_2 (slant_direction == 1 ? 130 : 125 )
   #define MONTHDAY_Y_OFFSET_2 (slant_direction == 1 ? 137 : 136 )
 
 #else
   #define SCREEN_CENTER_HORIZ 72
  
-  //#define MONTHDAY_X_OFFSET_1 (slant_direction == 1 ? 41 : 59 )
   #define MONTHDAY_X_OFFSET_1 (slant_direction == 1 ? 31 : 70 )
 
- // #define MONTHDAY_Y_OFFSET_1 (slant_direction == 1 ? 113 : 133 ) 
   #define MONTHDAY_Y_OFFSET_1 (slant_direction == 1 ? 120 : 139 )
 
-  //#define MONTHDAY_X_OFFSET_2 (slant_direction == 1 ? 64 : 82 )  
   #define MONTHDAY_X_OFFSET_2 (slant_direction == 1 ? 54 : 92 )
 
-  //#define MONTHDAY_Y_OFFSET_2 (slant_direction == 1 ? 124 : 122 )
   #define MONTHDAY_Y_OFFSET_2 (slant_direction == 1 ? 131 : 128 )
 #endif
 
@@ -146,16 +139,16 @@ static void pull_digit(int which_digit){ // which_digit is one of {0,1,2,3}
   
   int x = which_digit; // which_digit should be one of: {0,1,2,3}
   
-  int anim_duration = 0; //600;
+  int anim_duration = 0;
   int initial_delay = 0;
   if(startup_complete || (enable_startup_animations == 1)){
       anim_duration = 600;
   }
+  /*
   else {
     anim_duration = 0;
-    //initial_delay = 100;
   }
-  
+  */
   
     
   // move the shapes off the screen to the top right if slanted right, top left if slanted left
@@ -257,16 +250,9 @@ static void set_origin_point(){
   orig_y = orig.y;
   
   #ifdef PBL_ROUND
-  if(!show_date){
-    //orig_y += 8;
-  }
   orig_x += 18;
-//  orig_y += 6;
   orig_y += 14;
   #else
-  if(!show_date){
-    orig_y += 0;
-  }
   orig_y += 7;
   #endif
 }
@@ -408,13 +394,9 @@ static void update_time() {
   }
   currentMinute = tick_time->tm_min;
   
-  //APP_LOG(APP_LOG_LEVEL_DEBUG,"Time updated from %d:%d to %d:%d", previousHour, previousMinute, currentHour, currentMinute);
-  
-
   //for testing
-  //currentHour = 20;
-  //currentMinute = 47;
-  
+  //currentHour = 12;
+  //currentMinute = 34; 
   
   // after this point, we can tell which digits changed
   if(((int)floor(currentHour / 10)) != ((int)floor(previousHour / 10))){     // hour tens digit
@@ -445,20 +427,14 @@ static void update_time() {
   currentMonthDay = tick_time->tm_mday;
   
   //testing:
-  //currentMonthDay = 13;
+  //currentMonthDay = 12;
   
   if(currentMonthDay > 9){
     strftime(month_and_weekday_buffer,sizeof(month_and_weekday_buffer),"%b    %n%A",tick_time);
   } else{
     strftime(month_and_weekday_buffer,sizeof(month_and_weekday_buffer),"%b  %n%A",tick_time);
   }
-  
-  /*
-  strftime(abbrv_month,sizeof(abbrv_month),"%b",tick_time);
-  snprintf(day_of_month,sizeof(day_of_month),"%d",currentMonthDay);
-  strftime(full_weekday,sizeof(full_weekday),"%A",tick_time);
-  */
-  
+   
   //use currentMonthDay to set monthday path values
   //set_day_digit1_pathinfo_from_existing(time_digit_info_value((int)(currentMonthDay/10)),22,30);
   //set_day_digit2_pathinfo_from_existing(time_digit_info_value((int)(currentMonthDay%10)),22,30);
@@ -471,8 +447,6 @@ static void update_time() {
   s_monthday1_path = gpath_create(ptr_day_digit_1);
   s_monthday2_path = gpath_create(ptr_day_digit_2);
   
-  //layer_mark_dirty(s_canvas_layer);
-  
 }
 
 static void set_day_digit1_pathinfo_from_existing(GPathInfo existing1, int target_width, int target_height){
@@ -484,7 +458,7 @@ static void set_day_digit1_pathinfo_from_existing(GPathInfo existing1, int targe
   int last_point_index = 0;
   
   //for (uint32_t i = 0; i < existing1.num_points; i++){ // change this to loop through all 14 points (all points in the DAY_DIGIT gpathinfo) and set the trailing points to all be the same...
-  for (uint32_t i = 0; i < 14; i++){  
+  for (uint32_t i = 0; i < NUM_BOXY_DIGIT_POINTS; i++){  
     if(i < existing1.num_points){
       DAY_DIGIT_1.points[i].x = existing1.points[i].x * width_scale1;
       DAY_DIGIT_1.points[i].y = existing1.points[i].y * height_scale1;
@@ -506,7 +480,7 @@ static void set_day_digit2_pathinfo_from_existing(GPathInfo existing2, int targe
   int last_point_index2 = 0;
   
   //for (uint32_t i = 0; i < existing2.num_points; i++){ // change this to loop through all 14 points (all points in the DAY_DIGIT gpathinfo) and set the trailing points to all be the same...
-  for (uint32_t i = 0; i < 14; i++){    
+  for (uint32_t i = 0; i < NUM_BOXY_DIGIT_POINTS; i++){    
     if(i < existing2.num_points){
       DAY_DIGIT_2.points[i].x = existing2.points[i].x * width_scale2;
       DAY_DIGIT_2.points[i].y = existing2.points[i].y * height_scale2;
