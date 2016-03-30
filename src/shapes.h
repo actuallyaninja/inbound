@@ -128,7 +128,7 @@ const GPathInfo *time_digit_info(int8_t digit){
 
 static const GPathInfo ZERO_BOXY = {
   10,
-  (GPoint []) {{0,0},{25,0},{25,35},{0,35},{0,0},{9,0},{9,26},{16,26},{16,9},{0,9}}
+  (GPoint []) {{0,0},{25,0},{25,35},{0,35},{0,0},{11,0},{11,26},{17,26},{17,9},{0,9}}
 };
 
 static const GPathInfo ONE_BOXY = {
