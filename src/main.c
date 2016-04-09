@@ -707,6 +707,12 @@ static void box4_update_proc(Layer *this_layer, GContext *ctx) {
 
 
 static void set_color_palette(int color_scheme){
+  int num_of_palettes;
+  #ifdef PBL_COLOR
+    num_of_palettes = NUM_COLOR_PALETTES;
+  #else
+    num_of_palettes = NUM_BW_PALETTES;
+  #endif
   
   if(color_scheme == 0){
     #ifdef PBL_COLOR
@@ -714,7 +720,8 @@ static void set_color_palette(int color_scheme){
     #endif
   }
   else {  
-    if (color_scheme > NUM_PALETTES){color_scheme = 1;} //default is palette #1
+    //if (color_scheme > NUM_PALETTES){color_scheme = 1;} //default is palette #1
+    if (color_scheme > num_of_palettes){color_scheme = 1;} //default is palette #1
     
     for (int i = 0; i < NUM_PALETTE_COLORS; i++){
       #ifdef PBL_COLOR

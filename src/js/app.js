@@ -4,7 +4,7 @@ Pebble.addEventListener('ready', function() {
 
 Pebble.addEventListener('showConfiguration', function() {
   //var url = 'http://firstwebappcsharp.azurewebsites.net/';
-  var url = 'http://actuallyaninja.github.io/djangles-config/v3/?platform=';
+  var url = 'http://actuallyaninja.github.io/djangles-config/v4/?platform=';
   
   if(Pebble.getActiveWatchInfo) {
     var myPlatform = Pebble.getActiveWatchInfo().platform; 
