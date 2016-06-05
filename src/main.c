@@ -427,7 +427,7 @@ static void update_time() {
   currentMonthDay = tick_time->tm_mday;
   
   //testing:
-  //currentMonthDay = 12;
+  currentMonthDay = 12;
   
   if(currentMonthDay > 9){
     strftime(month_and_weekday_buffer,sizeof(month_and_weekday_buffer),"%b    %n%A",tick_time);
